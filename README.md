@@ -1,4 +1,3 @@
-# project
 # Company Management System
 
 This project is a **fullstack management system** built with **React**, **Ant Design / React-Bootstrap**, and a **Node.js/Express + MongoDB backend**.  
