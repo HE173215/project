@@ -1,6 +1,5 @@
-﻿import { LoginForm, ProFormText } from "@ant-design/pro-components"
-import { LockOutlined, UserOutlined } from "@ant-design/icons"
-import { App } from "antd"
+﻿import { LockOutlined, UserOutlined } from "@ant-design/icons"
+import { App, Button, Form, Input, Typography } from "antd"
 import { useState } from "react"
 import { loginUser, verifyOtp, resendOtp } from "../../api/auth"
 import { useAuthContext } from "../../context/AuthContext"
@@ -15,6 +14,7 @@ const LoginFormCustom = () => {
   const [verifying, setVerifying] = useState(false)
   const [resending, setResending] = useState(false)
   const [forgotOpen, setForgotOpen] = useState(false)
+  const [form] = Form.useForm()
 
   const handleSubmit = async (values) => {
     try {
@@ -73,41 +73,52 @@ const LoginFormCustom = () => {
 
   return (
     <>
-      <LoginForm
-        title="Sign in"
-        subTitle="Enter your email and password to continue"
+      <Form
+        form={form}
+        layout="vertical"
+        size="large"
+        className="auth-form-inner"
         onFinish={handleSubmit}
-        submitter={{
-          searchConfig: {
-            submitText: "Sign in",
-          },
-        }}
+        requiredMark={false}
       >
-        <ProFormText
+        <Typography.Title level={4} className="auth-form-title">
+          Sign in
+        </Typography.Title>
+
+        <Form.Item
+          label="Email"
           name="email"
-          fieldProps={{
-            size: "large",
-            prefix: <UserOutlined />,
-          }}
-          placeholder="you@example.com"
           rules={[
             { required: true, message: "Please enter an email address" },
             { type: "email", message: "Please enter a valid email address" },
           ]}
-        />
-        <ProFormText.Password
+        >
+          <Input prefix={<UserOutlined />} placeholder="you@example.com" autoComplete="email" />
+        </Form.Item>
+
+        <Form.Item
+          label="Password"
           name="password"
-          fieldProps={{
-            size: "large",
-            prefix: <LockOutlined />,
-          }}
-          placeholder="Password"
           rules={[{ required: true, message: "Please enter a password" }]}
-        />
-        <a className="forgot-link" onClick={() => setForgotOpen(true)}>
-          Forgot your password?
-        </a>
-      </LoginForm>
+        >
+          <Input.Password
+            prefix={<LockOutlined />}
+            placeholder="Password"
+            autoComplete="current-password"
+          />
+        </Form.Item>
+
+        <div className="auth-form-actions">
+          <Typography.Link className="forgot-link" onClick={() => setForgotOpen(true)}>
+            Forgot your password?
+          </Typography.Link>
+        </div>
+
+        <Button type="primary" htmlType="submit" block>
+          Sign in
+        </Button>
+      </Form>
+
       <OtpModal
         open={otpModalOpen}
         email={targetEmail}

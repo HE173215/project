@@ -34,8 +34,30 @@
   overflow-x: hidden;
 }
 
+/* Shared inner form layout */
+.auth-form-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-form-inner .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.auth-form-title {
+  text-align: center;
+  margin-bottom: 0 !important;
+}
+
+.auth-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* Compact form layout */
-.auth-form .ant-form {
+.auth-form .ant-form,
+.auth-form-inner {
   width: 100% !important;
   max-width: 100% !important;
   overflow-x: hidden;
@@ -43,28 +65,32 @@
 
 /* Inputs stretch to full width */
 .auth-form .ant-input,
-.auth-form .ant-input-affix-wrapper {
+.auth-form .ant-input-affix-wrapper,
+.auth-form-inner .ant-input,
+.auth-form-inner .ant-input-affix-wrapper {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box;
 }
 
 /* Forgot password link */
-.auth-form .forgot-link {
-  display: block;
+.auth-form .forgot-link,
+.auth-form-inner .forgot-link {
+  display: inline-block;
   text-align: right;
-  margin-bottom: 16px;
   font-size: 13px;
   color: #1677ff;
   cursor: pointer;
 }
 
-.auth-form .forgot-link:hover {
+.auth-form .forgot-link:hover,
+.auth-form-inner .forgot-link:hover {
   text-decoration: underline;
 }
 
 /* Submit button full width */
-.auth-form .ant-btn-primary {
+.auth-form .ant-btn-primary,
+.auth-form-inner .ant-btn-primary {
   width: 100%;
   height: 40px;
   font-weight: 500;

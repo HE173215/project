@@ -1,6 +1,5 @@
-﻿import { LoginForm, ProFormText } from '@ant-design/pro-components'
-import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { App } from 'antd'
+﻿import { LockOutlined, UserOutlined } from '@ant-design/icons'
+import { App, Button, Form, Input, Typography } from 'antd'
 import { useState } from 'react'
 import { registerUser, verifyOtp, resendOtp } from '../../api/auth'
 import { useAuthContext } from '../../context/AuthContext'
@@ -13,6 +12,7 @@ const RegisterFormCustom = () => {
   const [targetEmail, setTargetEmail] = useState('')
   const [verifying, setVerifying] = useState(false)
   const [resending, setResending] = useState(false)
+  const [form] = Form.useForm()
 
   const handleSubmit = async (values) => {
     try {
@@ -63,56 +63,56 @@ const RegisterFormCustom = () => {
 
   return (
     <>
-      <LoginForm
-        title="Register"
-        subTitle="Create a new account"
+      <Form
+        form={form}
+        layout='vertical'
+        size='large'
+        className='auth-form-inner'
         onFinish={handleSubmit}
-        submitter={{
-          searchConfig: {
-            submitText: 'Register',
-          },
-        }}
+        requiredMark={false}
       >
-        <ProFormText
-          name="fullName"
-          fieldProps={{
-            size: 'large',
-            prefix: <UserOutlined />,
-          }}
-          placeholder="John Doe"
+        <Typography.Title level={4} className='auth-form-title'>
+          Register
+        </Typography.Title>
+
+        <Form.Item
+          label='Full name'
+          name='fullName'
           rules={[{ required: true, message: 'Please enter your full name' }]}
-        />
-        <ProFormText
-          name="email"
-          fieldProps={{
-            size: 'large',
-            prefix: <UserOutlined />,
-          }}
-          placeholder="you@example.com"
+        >
+          <Input prefix={<UserOutlined />} placeholder='John Doe' autoComplete='name' />
+        </Form.Item>
+
+        <Form.Item
+          label='Email'
+          name='email'
           rules={[
             { required: true, message: 'Please enter an email address' },
             { type: 'email', message: 'Please enter a valid email address' },
           ]}
-        />
-        <ProFormText.Password
-          name="password"
-          fieldProps={{
-            size: 'large',
-            prefix: <LockOutlined />,
-          }}
-          placeholder="Password"
+        >
+          <Input prefix={<UserOutlined />} placeholder='you@example.com' autoComplete='email' />
+        </Form.Item>
+
+        <Form.Item
+          label='Password'
+          name='password'
           rules={[
             { required: true, message: 'Please enter a password' },
             { min: 6, message: 'Password must be at least 6 characters' },
           ]}
-        />
-        <ProFormText.Password
-          name="confirmPassword"
-          fieldProps={{
-            size: 'large',
-            prefix: <LockOutlined />,
-          }}
-          placeholder="Confirm password"
+        >
+          <Input.Password
+            prefix={<LockOutlined />}
+            placeholder='Password'
+            autoComplete='new-password'
+          />
+        </Form.Item>
+
+        <Form.Item
+          label='Confirm password'
+          name='confirmPassword'
+          dependencies={['password']}
           rules={[
             { required: true, message: 'Please confirm your password' },
             ({ getFieldValue }) => ({
@@ -124,8 +124,19 @@ const RegisterFormCustom = () => {
               },
             }),
           ]}
-        />
-      </LoginForm>
+        >
+          <Input.Password
+            prefix={<LockOutlined />}
+            placeholder='Confirm password'
+            autoComplete='new-password'
+          />
+        </Form.Item>
+
+        <Button type='primary' htmlType='submit' block>
+          Register
+        </Button>
+      </Form>
+
       <OtpModal
         open={otpModalOpen}
         email={targetEmail}
