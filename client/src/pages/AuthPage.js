@@ -1,4 +1,4 @@
-﻿import { Card, Tabs, Typography } from 'antd'
+import { Card, Tabs, Typography } from 'antd'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LoginFormCustom from '../components/auth/LoginForm'

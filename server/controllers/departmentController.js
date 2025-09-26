@@ -37,6 +37,24 @@ const sanitizeDepartment = (dept, options = { populateUsers: false }) => {
   return base
 }
 
+// Helper to ensure a parent department exists and is active before assignment
+const assertParentIsActive = async (parentId) => {
+  if (!parentId) {
+    return null
+  }
+
+  const parent = await Department.findById(parentId)
+  if (!parent) {
+    throw Object.assign(new Error("Parent department not found"), { status: 404 })
+  }
+
+  if (!parent.isActive) {
+    throw Object.assign(new Error("Parent department must be active"), { status: 400 })
+  }
+
+  return parent
+}
+
 // GET /departments
 exports.listDepartments = async (req, res) => {
   try {
@@ -104,6 +122,15 @@ exports.createDepartment = async (req, res) => {
       return res.status(409).json({ message: "Department name already exists" })
     }
 
+    if (parentId) {
+      try {
+        await assertParentIsActive(parentId)
+      } catch (error) {
+        const status = error.status || 500
+        return res.status(status).json({ message: error.message })
+      }
+    }
+
     const department = await Department.create({
       code,
       name,
@@ -152,6 +179,15 @@ exports.updateDepartment = async (req, res) => {
       }
     }
 
+    if (Object.prototype.hasOwnProperty.call(updates, "parentId") && updates.parentId) {
+      try {
+        await assertParentIsActive(updates.parentId)
+      } catch (error) {
+        const status = error.status || 500
+        return res.status(status).json({ message: error.message })
+      }
+    }
+
     const department = await Department.findByIdAndUpdate(id, updates, { new: true })
       .populate("manager", "-password")
       .populate("parentId", "name code")
@@ -160,8 +196,19 @@ exports.updateDepartment = async (req, res) => {
       return res.status(404).json({ message: "Department not found" })
     }
 
+    let detachedChildren = 0
+    if (Object.prototype.hasOwnProperty.call(updates, "isActive") && updates.isActive === false) {
+      const detachResult = await Department.updateMany(
+        { parentId: id },
+        { $set: { parentId: null } },
+      )
+      detachedChildren = detachResult.modifiedCount || 0
+    }
+
     return res.json({
-      message: "Department updated successfully",
+      message: detachedChildren
+        ? `Department updated successfully. Detached ${detachedChildren} child departments.`
+        : "Department updated successfully",
       department: sanitizeDepartment(department),
     })
   } catch (err) {

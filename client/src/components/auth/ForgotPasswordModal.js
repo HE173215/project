@@ -1,4 +1,4 @@
-﻿import { Button, Space, Steps, Typography, App } from 'antd'
+import { Button, Space, Steps, Typography, App } from 'antd'
 import { ModalForm, ProFormText } from '@ant-design/pro-components'
 import { useEffect, useMemo, useState } from 'react'
 import { requestPasswordReset, resetPassword } from '../../api/auth'
@@ -95,7 +95,7 @@ const ForgotPasswordModal = ({ open, onClose, initialEmail = '' }) => {
       open={open}
       submitter={false}
       modalProps={{
-        destroyOnClose: true,
+        destroyOnHidden: true,
         onCancel: onClose,
         footer: null,
       }}

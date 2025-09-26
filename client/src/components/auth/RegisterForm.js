@@ -1,4 +1,4 @@
-﻿import { LockOutlined, UserOutlined } from '@ant-design/icons'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input, Typography } from 'antd'
 import { useState } from 'react'
 import { registerUser, verifyOtp, resendOtp } from '../../api/auth'

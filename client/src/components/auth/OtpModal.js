@@ -1,4 +1,4 @@
-﻿import { Button, Space, Typography } from 'antd'
+import { Button, Space, Typography } from 'antd'
 import { ModalForm, ProFormText } from '@ant-design/pro-components'
 
 const OtpModal = ({
@@ -15,7 +15,7 @@ const OtpModal = ({
       title="Enter OTP"
       open={open}
       modalProps={{
-        destroyOnClose: true,
+        destroyOnHidden: true,
         onCancel: onClose,
         footer: null,
       }}

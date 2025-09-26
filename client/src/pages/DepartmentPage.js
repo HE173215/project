@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import {
   Button,
   Card,
@@ -149,8 +149,10 @@ const DepartmentPage = () => {
       return []
     }
 
+    const activeDepartments = departments.filter((dept) => dept.isActive)
+
     if (!editingDepartment) {
-      return departments.map((dept) => ({
+      return activeDepartments.map((dept) => ({
         label: `${dept.name} (${dept.code})`,
         value: dept.id,
       }))
@@ -161,7 +163,7 @@ const DepartmentPage = () => {
       ...getDescendantIds(editingDepartment.id, departments),
     ])
 
-    return departments
+    return activeDepartments
       .filter((dept) => !blockedIds.has(dept.id))
       .map((dept) => ({
         label: `${dept.name} (${dept.code})`,
@@ -209,10 +211,10 @@ const DepartmentPage = () => {
       key: "manager",
       render: (_, record) => {
         if (!record.manager) {
-          return "-"
+          return "—"
         }
 
-        return record.manager.fullName || record.manager.email || "-"
+        return record.manager.fullName || record.manager.email || "—"
       },
     },
     {
@@ -228,13 +230,13 @@ const DepartmentPage = () => {
       dataIndex: ["parentId", "name"],
       key: "parentId",
       render: (_, record) =>
-        record.parentId ? `${record.parentId.name} (${record.parentId.code})` : "-",
+        record.parentId ? `${record.parentId.name} (${record.parentId.code})` : "—",
     },
     {
       title: "Created",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (value) => (value ? new Date(value).toLocaleString() : "-"),
+      render: (value) => (value ? new Date(value).toLocaleString() : "—"),
     },
   ]
 
@@ -318,7 +320,7 @@ const DepartmentPage = () => {
           onCancel={closeModal}
           okText={editingDepartment ? "Save" : "Create"}
           cancelText="Cancel"
-          destroyOnClose
+          destroyOnHidden
         >
           <Form layout="vertical" form={form} initialValues={{ isActive: true }}>
             <Form.Item
