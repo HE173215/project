@@ -49,22 +49,6 @@ It includes authentication (login, register, OTP, forgot password), and manageme
 
 ---
 
-## 📂 Project Structure (Frontend)
-
-src/
-├── api/ # API service functions (departments, users, auth, etc.)
-├── components/
-│ └── layout/ # Sidebar, HeaderBar, FooterBar
-│ └── auth/ # LoginForm, RegisterForm, OtpModal, ForgotPasswordModal
-├── context/ # AuthContext, DepartmentContext
-├── pages/
-│ ├── AuthPage.js
-│ ├── HomePage.js
-│ ├── DepartmentPage.js
-│ └── dashboard/ # Placeholder pages: Dashboard, Messages, Account, Chart, Calendar, Reports
-├── style/ # CSS files (AuthPage.css, Sidebar.css, etc.)
-└── App.js
-
 ## ⚡ Getting Started
 
 ### 1. Clone the repo
