@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Button,
   Card,
@@ -16,18 +16,25 @@ import { useUserContext } from "../context/UserContext"
 
 const ROLE_OPTIONS = [
   { label: "Admin", value: "admin" },
+  { label: "Accountant", value: "accountant" },
   { label: "Manager", value: "manager" },
-  { label: "Employee", value: "user" },
+  { label: "Employee", value: "employee" },
+  { label: "Learner", value: "learn" },
 ]
 
 const roleLabel = (role) => {
   switch (role) {
     case "admin":
       return "Admin"
+    case "accountant":
+      return "Accountant"
     case "manager":
       return "Manager"
+    case "employee":
     case "user":
       return "Employee"
+    case "learn":
+      return "Learner"
     default:
       return role
   }
@@ -44,6 +51,7 @@ const UserManagementPage = () => {
     profileLoading,
     profileSaving,
     saveProfile,
+    allowSelfService,
   } = useUserContext()
 
   const { message } = App.useApp()
@@ -55,7 +63,7 @@ const UserManagementPage = () => {
   const [profileForm] = Form.useForm()
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (!isAdmin && allowSelfService) {
       if (profile) {
         profileForm.setFieldsValue({
           fullName: profile.fullName || "",
@@ -67,12 +75,11 @@ const UserManagementPage = () => {
         profileForm.resetFields()
       }
     }
-  }, [isAdmin, profile, profileForm])
+  }, [isAdmin, allowSelfService, profile, profileForm])
 
   const openRoleModal = (record) => {
     setSelectedUser(record)
-    const normalized = (record.roles || []).map((role) => (role === "employee" ? "user" : role))
-    setSelectedRoles(normalized)
+    setSelectedRoles(record.roles || [])
     setRoleModalVisible(true)
   }
 
@@ -145,7 +152,7 @@ const UserManagementPage = () => {
               User management
             </Typography.Title>
             <Typography.Text type="secondary">
-              Assign administrator, manager, or employee roles. Only admins can see this list.
+              Assign administrator, manager, accountant, employee, or learner roles. Only admins can see this list.
             </Typography.Text>
           </div>
 
@@ -176,7 +183,7 @@ const UserManagementPage = () => {
             />
           </Modal>
         </Space>
-      ) : (
+      ) : allowSelfService ? (
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
           <div>
             <Typography.Title level={4} style={{ marginBottom: 0 }}>
@@ -219,10 +226,13 @@ const UserManagementPage = () => {
             </Space>
           </Form>
         </Space>
+      ) : (
+        <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
+          You do not have access to any user management actions.
+        </Typography.Paragraph>
       )}
     </Card>
   )
 }
 
 export default UserManagementPage
-

@@ -1,11 +1,11 @@
-﻿const argon2 = require("argon2")
+const argon2 = require("argon2")
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
 const sanitizeUser = require("../utils/sanitizeUser")
 const generateOtp = require("../utils/generateOtp")
 const { sendOtpEmail } = require("../services/emailService")
 const mongoose = require("mongoose")
-const ALLOWED_ROLES = new Set(["admin", "manager", "user"])
+const ALLOWED_ROLES = new Set(["admin", "manager", "user", "employee", "accountant", "learn"])
 
 // Build a JWT token for an authenticated user
 const buildToken = (user) => {
@@ -404,6 +404,7 @@ exports.updateUserRoles = async (req, res) => {
     return res.status(500).json({ message: "Failed to update user roles" })
   }
 }
+
 
 
 

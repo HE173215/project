@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
+  Alert,
   Button,
   Card,
+  Divider,
   Form,
   Input,
-  Modal,
+  List,
   Popconfirm,
   Select,
   Space,
@@ -14,177 +16,207 @@ import {
   Typography,
   App,
 } from "antd"
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons"
+import { PlusOutlined } from "@ant-design/icons"
 import { useDepartmentContext } from "../context/DepartmentContext"
+import { useAuthContext } from "../context/AuthContext"
 
 const { Title, Text } = Typography
 
+const mapUserLabel = (user) =>
+  user.fullName ? `${user.fullName}${user.email ? ` (${user.email})` : ""}` : user.email
+
 const DepartmentPage = () => {
+  const { message } = App.useApp()
+  const { user: currentUser } = useAuthContext()
+
+  const normalizedRoles = useMemo(
+    () => (currentUser?.roles || []).map((role) => (role === "user" ? "employee" : role)),
+    [currentUser],
+  )
+  const isAdmin = normalizedRoles.includes("admin")
+  const isManager = normalizedRoles.includes("manager")
+
   const {
     departments,
     users,
     loadingDepartments,
     loadingUsers,
-    canManageDepartments,
     addDepartment,
     editDepartment,
     removeDepartment,
     getDescendantIds,
   } = useDepartmentContext()
-  const { message } = App.useApp()
 
-  const [submitting, setSubmitting] = useState(false)
-  const [modalVisible, setModalVisible] = useState(false)
-  const [editingDepartment, setEditingDepartment] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
-  const [form] = Form.useForm()
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState(null)
+  const [memberSelection, setMemberSelection] = useState([])
+  const [createForm] = Form.useForm()
+  const [detailForm] = Form.useForm()
 
-  const ensureManagePermission = () => {
-    if (!canManageDepartments) {
-      message.warning("You only have permission to view departments")
-      return false
+  const visibleDepartments = useMemo(() => {
+    if (isAdmin) {
+      return departments
     }
-    return true
-  }
-
-  const openCreateModal = () => {
-    if (!ensureManagePermission()) {
-      return
+    if (isManager) {
+      return departments.filter((dept) => dept.manager?.id === currentUser?.id)
     }
-    setEditingDepartment(null)
-    form.resetFields()
-    setModalVisible(true)
-  }
+    return []
+  }, [departments, isAdmin, isManager, currentUser?.id])
 
-  const openEditModal = (department) => {
-    if (!ensureManagePermission()) {
-      return
+  useEffect(() => {
+    if (!visibleDepartments.some((dept) => dept.id === selectedDepartmentId)) {
+      setSelectedDepartmentId(null)
     }
-    setEditingDepartment(department)
-    form.setFieldsValue({
-      code: department.code,
-      name: department.name,
-      description: department.description,
-      isActive: department.isActive,
-      parentId: department.parentId?.id || null,
-      managerId: department.manager?.id || null,
-    })
-    setModalVisible(true)
-  }
+  }, [visibleDepartments, selectedDepartmentId])
 
-  const closeModal = () => {
-    setModalVisible(false)
-    setEditingDepartment(null)
-    form.resetFields()
-  }
+  useEffect(() => {
+    setMemberSelection([])
+  }, [selectedDepartmentId])
 
-  const handleSubmit = async () => {
-    if (!canManageDepartments) {
-      message.error("You do not have permission to manage departments")
-      return
+  const selectedDepartment = useMemo(
+    () => visibleDepartments.find((dept) => dept.id === selectedDepartmentId) || null,
+    [visibleDepartments, selectedDepartmentId],
+  )
+
+  useEffect(() => {
+    if (selectedDepartment) {
+      detailForm.setFieldsValue({
+        code: selectedDepartment.code,
+        name: selectedDepartment.name,
+        description: selectedDepartment.description,
+        parentId: selectedDepartment.parentId?.id || null,
+        managerId: selectedDepartment.manager?.id || null,
+        isActive: selectedDepartment.isActive,
+      })
+    } else {
+      detailForm.resetFields()
     }
+  }, [selectedDepartment, detailForm])
 
-    try {
-      const values = await form.validateFields()
+  const canManage = isAdmin || isManager
+  const canEditDetails = isAdmin
+  const canEditMembers = selectedDepartment && (isAdmin || selectedDepartment.manager?.id === currentUser?.id)
 
-      const payload = {
-        code: values.code.trim().toUpperCase(),
-        name: values.name.trim(),
-        description: values.description?.trim() || "",
-        isActive: values.isActive,
-        parentId: values.parentId || null,
-        manager: values.managerId || null,
-      }
+  const managerOptions = useMemo(
+    () => users.map((user) => ({ label: mapUserLabel(user), value: user.id })),
+    [users],
+  )
 
-      if (editingDepartment) {
-        const blockedIds = [
-          editingDepartment.id,
-          ...getDescendantIds(editingDepartment.id, departments),
-        ]
-
-        if (payload.parentId && blockedIds.includes(payload.parentId)) {
-          message.error("Cannot assign a child department as parent")
-          return
-        }
-      }
-
-      setSubmitting(true)
-
-      if (editingDepartment) {
-        await editDepartment(editingDepartment.id, payload)
-      } else {
-        await addDepartment(payload)
-      }
-
-      closeModal()
-    } catch (error) {
-      if (error?.errorFields) {
-        return
-      }
-
-      if (error?.message) {
-        message.error(error.message)
-      }
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleDelete = async (departmentId) => {
-    if (!canManageDepartments) {
-      message.error("You do not have permission to manage departments")
-      return
-    }
-
-    setDeletingId(departmentId)
-    try {
-      await removeDepartment(departmentId)
-    } finally {
-      setDeletingId(null)
-    }
-  }
-
-  const parentOptions = useMemo(() => {
-    if (!departments?.length) {
+  const availableMembers = useMemo(() => {
+    if (!selectedDepartment) {
       return []
     }
+    const currentIds = new Set((selectedDepartment.users || []).map((user) => user.id))
+    return users
+      .filter((user) => !currentIds.has(user.id))
+      .map((user) => ({ label: mapUserLabel(user), value: user.id }))
+  }, [users, selectedDepartment])
 
-    const activeDepartments = departments.filter((dept) => dept.isActive)
+  const parentOptions = useMemo(() => {
+    const sourceDepartments = isAdmin ? departments : visibleDepartments
 
-    if (!editingDepartment) {
-      return activeDepartments.map((dept) => ({
-        label: `${dept.name} (${dept.code})`,
-        value: dept.id,
-      }))
+    if (!selectedDepartment) {
+      return sourceDepartments.map((dept) => ({ label: `${dept.name} (${dept.code})`, value: dept.id }))
     }
 
     const blockedIds = new Set([
-      editingDepartment.id,
-      ...getDescendantIds(editingDepartment.id, departments),
+      selectedDepartment.id,
+      ...getDescendantIds(selectedDepartment.id, sourceDepartments),
     ])
 
-    return activeDepartments
+    return sourceDepartments
       .filter((dept) => !blockedIds.has(dept.id))
-      .map((dept) => ({
-        label: `${dept.name} (${dept.code})`,
-        value: dept.id,
-      }))
-  }, [departments, editingDepartment, getDescendantIds])
+      .map((dept) => ({ label: `${dept.name} (${dept.code})`, value: dept.id }))
+  }, [selectedDepartment, departments, getDescendantIds])
 
-  const managerOptions = useMemo(() => {
-    if (!users?.length) {
-      return []
+  const handleCreate = async (values) => {
+    try {
+      await addDepartment({
+        code: values.code.trim().toUpperCase(),
+        name: values.name.trim(),
+        description: values.description?.trim() || "",
+        parentId: values.parentId || null,
+        manager: values.managerId || null,
+        isActive: values.isActive,
+      })
+      createForm.resetFields()
+      createForm.setFieldsValue({ isActive: true })
+    } catch (error) {
+      if (error?.message) {
+        message.error(error.message)
+      }
+    }
+  }
+
+  const handleSaveDetails = async (values) => {
+    if (!selectedDepartment || !canEditDetails) {
+      return
     }
 
-    return users.map((user) => ({
-      value: user.id,
-      label: user.fullName
-        ? `${user.fullName}${user.email ? ` (${user.email})` : ""}`
-        : user.email || user.id,
-    }))
-  }, [users])
+    try {
+      await editDepartment(selectedDepartment.id, {
+        code: values.code.trim().toUpperCase(),
+        name: values.name.trim(),
+        description: values.description?.trim() || "",
+        parentId: values.parentId || null,
+        manager: values.managerId || null,
+        isActive: values.isActive,
+      })
+    } catch (error) {
+      if (error?.message) {
+        message.error(error.message)
+      }
+    }
+  }
 
-  const baseColumns = [
+  const handleDeleteDepartment = async (deptId) => {
+    try {
+      await removeDepartment(deptId)
+      if (selectedDepartmentId === deptId) {
+        setSelectedDepartmentId(null)
+      }
+    } catch (error) {
+      if (error?.message) {
+        message.error(error.message)
+      }
+    }
+  }
+
+  const handleAddMembers = async (memberIds) => {
+    if (!selectedDepartment || !canEditMembers || !memberIds.length) {
+      return
+    }
+
+    const currentIds = new Set((selectedDepartment.users || []).map((user) => user.id))
+    const mergedIds = Array.from(new Set([...currentIds, ...memberIds]))
+
+    try {
+      await editDepartment(selectedDepartment.id, { users: mergedIds })
+    } catch (error) {
+      if (error?.message) {
+        message.error(error.message)
+      }
+    }
+  }
+
+  const handleRemoveMember = async (memberId) => {
+    if (!selectedDepartment || !canEditMembers) {
+      return
+    }
+
+    const remaining = (selectedDepartment.users || [])
+      .filter((member) => member.id !== memberId)
+      .map((member) => member.id)
+
+    try {
+      await editDepartment(selectedDepartment.id, { users: remaining })
+    } catch (error) {
+      if (error?.message) {
+        message.error(error.message)
+      }
+    }
+  }
+
+  const columns = [
     {
       title: "Code",
       dataIndex: "code",
@@ -194,195 +226,262 @@ const DepartmentPage = () => {
       title: "Department",
       dataIndex: "name",
       key: "name",
-      render: (value, record) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>{value}</Text>
-          {record.description ? (
-            <Text type="secondary" style={{ maxWidth: 360 }}>
-              {record.description}
-            </Text>
-          ) : null}
-        </Space>
-      ),
-    },
-    {
-      title: "Manager",
-      dataIndex: ["manager", "fullName"],
-      key: "manager",
-      render: (_, record) => {
-        if (!record.manager) {
-          return "—"
-        }
-
-        return record.manager.fullName || record.manager.email || "—"
-      },
     },
     {
       title: "Status",
       dataIndex: "isActive",
       key: "isActive",
-      render: (value) => (
-        <Tag color={value ? "green" : "red"}>{value ? "Active" : "Inactive"}</Tag>
+      render: (value) => <Tag color={value ? "green" : "red"}>{value ? "Active" : "Inactive"}</Tag>,
+    },
+    {
+      title: "Manager",
+      dataIndex: ["manager", "fullName"],
+      key: "manager",
+      render: (_, record) => record.manager?.fullName || record.manager?.email || "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Button type="link" onClick={() => setSelectedDepartmentId(record.id)}>
+            View details
+          </Button>
+          {isAdmin && (
+            <Popconfirm
+              title="Delete department"
+              description={`Are you sure you want to delete ${record.name}?`}
+              okText="Delete"
+              cancelText="Cancel"
+              onConfirm={() => handleDeleteDepartment(record.id)}
+            >
+              <Button type="link" danger>
+                Delete
+              </Button>
+            </Popconfirm>
+          )}
+        </Space>
       ),
     },
-    {
-      title: "Parent",
-      dataIndex: ["parentId", "name"],
-      key: "parentId",
-      render: (_, record) =>
-        record.parentId ? `${record.parentId.name} (${record.parentId.code})` : "—",
-    },
-    {
-      title: "Created",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (value) => (value ? new Date(value).toLocaleString() : "—"),
-    },
   ]
-
-  const columns = canManageDepartments
-    ? [
-        ...baseColumns,
-        {
-          title: "Actions",
-          key: "actions",
-          render: (_, record) => (
-            <Space>
-              <Button
-                type="text"
-                icon={<EditOutlined />}
-                onClick={() => openEditModal(record)}
-              >
-                Edit
-              </Button>
-              <Popconfirm
-                title="Delete department"
-                description={`Are you sure you want to remove ${record.name}?`}
-                okText="Delete"
-                cancelText="Cancel"
-                onConfirm={() => handleDelete(record.id)}
-              >
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  loading={deletingId === record.id}
-                >
-                  Delete
-                </Button>
-              </Popconfirm>
-            </Space>
-          ),
-        },
-      ]
-    : baseColumns
 
   return (
     <Card style={{ width: "100%" }}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Space align="center" style={{ width: "100%", justifyContent: "space-between" }}>
-          <div>
-            <Title level={4} style={{ marginBottom: 0 }}>
-              Department management
-            </Title>
+        <div>
+          <Title level={4} style={{ marginBottom: 0 }}>
+            Department management
+          </Title>
+          <Text type="secondary">
+            {isAdmin
+              ? "Manage departments, assign managers, and curate department teams."
+              : isManager
+              ? "Review the departments you manage and keep their member lists up to date."
+              : "Your role does not grant access to department management."}
+          </Text>
+        </div>
+
+        {isAdmin && (
+          <Card type="inner" title="Create department">
+            <Form
+              layout="vertical"
+              form={createForm}
+              onFinish={handleCreate}
+              initialValues={{ isActive: true }}
+            >
+              <Space align="start" wrap style={{ width: "100%" }}>
+                <Form.Item
+                  label="Code"
+                  name="code"
+                  rules={[
+                    { required: true, message: "Please enter a department code" },
+                    {
+                      pattern: /^[A-Z0-9_-]{2,10}$/,
+                      message: "Use 2-10 uppercase letters, numbers, hyphen, or underscore",
+                    },
+                  ]}
+                >
+                  <Input placeholder="IT01" maxLength={10} />
+                </Form.Item>
+                <Form.Item
+                  label="Name"
+                  name="name"
+                  rules={[{ required: true, message: "Please enter a department name" }]}
+                >
+                  <Input placeholder="Technology" />
+                </Form.Item>
+                <Form.Item label="Manager" name="managerId" style={{ minWidth: 220 }}>
+                  <Select
+                    allowClear
+                    placeholder="Assign manager"
+                    loading={loadingUsers}
+                    options={managerOptions}
+                  />
+                </Form.Item>
+                <Form.Item label="Parent department" name="parentId" style={{ minWidth: 220 }}>
+                  <Select allowClear placeholder="Select parent" options={parentOptions} />
+                </Form.Item>
+                <Form.Item label="Active" name="isActive" valuePropName="checked">
+                  <Switch />
+                </Form.Item>
+              </Space>
+              <Form.Item label="Description" name="description">
+                <Input.TextArea rows={3} placeholder="Describe the department's responsibilities" />
+              </Form.Item>
+              <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
+                Add department
+              </Button>
+            </Form>
+          </Card>
+        )}
+
+        {canManage ? (
+          <Table
+            rowKey="id"
+            columns={columns}
+            dataSource={visibleDepartments}
+            loading={loadingDepartments}
+            pagination={{ pageSize: 10, showSizeChanger: false, hideOnSinglePage: true }}
+            locale={{ emptyText: "No departments available" }}
+            rowSelection={{
+              type: "radio",
+              selectedRowKeys: selectedDepartmentId ? [selectedDepartmentId] : [],
+              onChange: (keys) => setSelectedDepartmentId(keys[0]),
+            }}
+            onRow={(record) => ({ onClick: () => setSelectedDepartmentId(record.id) })}
+          />
+        ) : (
+          <Alert message="No departments available for your role" type="info" showIcon />
+        )}
+
+        {selectedDepartment && (
+          <Card type="inner" title={`Department details ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ ${selectedDepartment.name}`}>
+            <Form
+              layout="vertical"
+              form={detailForm}
+              onFinish={handleSaveDetails}
+              disabled={!canEditDetails}
+            >
+              <Space align="start" wrap style={{ width: "100%" }}>
+                <Form.Item
+                  label="Code"
+                  name="code"
+                  rules={[
+                    { required: true, message: "Please enter a department code" },
+                    {
+                      pattern: /^[A-Z0-9_-]{2,10}$/,
+                      message: "Use 2-10 uppercase letters, numbers, hyphen, or underscore",
+                    },
+                  ]}
+                >
+                  <Input placeholder="IT01" maxLength={10} />
+                </Form.Item>
+                <Form.Item
+                  label="Name"
+                  name="name"
+                  rules={[{ required: true, message: "Please enter a department name" }]}
+                >
+                  <Input placeholder="Technology" />
+                </Form.Item>
+                <Form.Item label="Manager" name="managerId" style={{ minWidth: 220 }}>
+                  <Select
+                    allowClear
+                    placeholder="Assign manager"
+                    loading={loadingUsers}
+                    options={managerOptions}
+                  />
+                </Form.Item>
+                <Form.Item label="Parent department" name="parentId" style={{ minWidth: 220 }}>
+                  <Select allowClear placeholder="Select parent" options={parentOptions} />
+                </Form.Item>
+                <Form.Item label="Active" name="isActive" valuePropName="checked">
+                  <Switch />
+                </Form.Item>
+              </Space>
+              <Form.Item label="Description" name="description">
+                <Input.TextArea rows={4} placeholder="Department overview" />
+              </Form.Item>
+              {canEditDetails && (
+                <Button type="primary" htmlType="submit">
+                  Save changes
+                </Button>
+              )}
+            </Form>
+
+            <Divider />
+
+            <Title level={5}>Team members</Title>
             <Text type="secondary">
-              Create, update, and organise your departments.
-              {!canManageDepartments && " You currently have read-only access."}
+              {selectedDepartment.manager
+                ? `Manager: ${selectedDepartment.manager.fullName || selectedDepartment.manager.email}`
+                : "No manager assigned"}
             </Text>
-          </div>
-          {canManageDepartments && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
-              Add department
-            </Button>
-          )}
-        </Space>
 
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={departments}
-          loading={loadingDepartments}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: false,
-            hideOnSinglePage: true,
-          }}
-          locale={{ emptyText: "No departments yet" }}
-        />
+            {canEditMembers && (
+              <Space direction="vertical" style={{ width: "100%", maxWidth: 420 }} size="small">
+                <Select
+                  mode="multiple"
+                  placeholder="Select members to add"
+                  options={availableMembers}
+                  value={memberSelection}
+                  onChange={setMemberSelection}
+                  loading={loadingUsers}
+                  style={{ width: "100%" }}
+                />
+                <Button
+                  type="primary"
+                  onClick={async () => {
+                    if (!memberSelection.length) {
+                      message.warning("Choose at least one member to add")
+                      return
+                    }
+                    await handleAddMembers(memberSelection)
+                    setMemberSelection([])
+                  }}
+                >
+                  Add members
+                </Button>
+              </Space>
+            )}
+
+            <List
+              style={{ marginTop: 16 }}
+              bordered
+              dataSource={selectedDepartment.users || []}
+              locale={{ emptyText: "No members assigned" }}
+              renderItem={(member) => (
+                <List.Item
+                  actions={
+                    canEditMembers
+                      ? [
+                          <Button
+                            key="remove"
+                            type="link"
+                            danger
+                            onClick={() => handleRemoveMember(member.id)}
+                          >
+                            Remove
+                          </Button>,
+                        ]
+                      : undefined
+                  }
+                >
+                  <Space direction="vertical" size={0}>
+                    <Text strong>{member.fullName || member.email}</Text>
+                    {member.email && <Text type="secondary">{member.email}</Text>}
+                  </Space>
+                </List.Item>
+              )}
+            />
+          </Card>
+        )}
       </Space>
-
-      {canManageDepartments && (
-        <Modal
-          title={editingDepartment ? "Edit department" : "Add department"}
-          open={modalVisible}
-          onOk={handleSubmit}
-          confirmLoading={submitting}
-          onCancel={closeModal}
-          okText={editingDepartment ? "Save" : "Create"}
-          cancelText="Cancel"
-          destroyOnHidden
-        >
-          <Form layout="vertical" form={form} initialValues={{ isActive: true }}>
-            <Form.Item
-              label="Department code"
-              name="code"
-              rules={[
-                { required: true, message: "Please enter a code" },
-                {
-                  pattern: /^[A-Z0-9_-]{2,10}$/,
-                  message: "Use 2-10 uppercase letters, numbers, hyphen, or underscore",
-                },
-              ]}
-            >
-              <Input placeholder="e.g. IT01" maxLength={10} />
-            </Form.Item>
-
-            <Form.Item
-              label="Department name"
-              name="name"
-              rules={[{ required: true, message: "Please enter a name" }]}
-            >
-              <Input placeholder="e.g. Technology" />
-            </Form.Item>
-
-            <Form.Item label="Description" name="description">
-              <Input.TextArea
-                placeholder="Short summary of the department's responsibilities"
-                autoSize={{ minRows: 3, maxRows: 5 }}
-                maxLength={500}
-                showCount
-              />
-            </Form.Item>
-
-            <Form.Item label="Parent department" name="parentId">
-              <Select
-                placeholder="Select a parent department"
-                allowClear
-                showSearch
-                optionFilterProp="label"
-                options={parentOptions}
-              />
-            </Form.Item>
-
-            <Form.Item label="Manager" name="managerId">
-              <Select
-                placeholder="Choose a manager"
-                allowClear
-                showSearch
-                optionFilterProp="label"
-                options={managerOptions}
-                loading={loadingUsers}
-              />
-            </Form.Item>
-
-            <Form.Item label="Status" name="isActive" valuePropName="checked">
-              <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
-            </Form.Item>
-          </Form>
-        </Modal>
-      )}
     </Card>
   )
 }
 
 export default DepartmentPage
+
+
+
+
