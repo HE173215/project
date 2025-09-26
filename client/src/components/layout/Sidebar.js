@@ -2,13 +2,8 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const NAV_ITEMS = [
-  { key: 'dashboard', label: 'Dashboard', path: '/home/dashboard' },
-  { key: 'messages', label: 'Messages', path: '/home/messages' },
-  { key: 'account', label: 'Account', path: '/home/account' },
-  { key: 'chart', label: 'Chart', path: '/home/chart' },
-  { key: 'calendar', label: 'Calendar', path: '/home/calendar' },
-  { key: 'reports', label: 'Reports', path: '/home/reports' },
   { key: 'departments', label: 'Departments', path: '/home/departments' },
+  { key: 'users', label: 'Users', path: '/home/users' },
 ]
 
 const Sidebar = () => {

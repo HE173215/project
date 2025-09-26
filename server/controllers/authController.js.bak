@@ -4,8 +4,6 @@ const User = require("../models/User")
 const sanitizeUser = require("../utils/sanitizeUser")
 const generateOtp = require("../utils/generateOtp")
 const { sendOtpEmail } = require("../services/emailService")
-const mongoose = require("mongoose")
-const ALLOWED_ROLES = new Set(["admin", "manager", "user"])
 
 // Build a JWT token for an authenticated user
 const buildToken = (user) => {
@@ -363,48 +361,3 @@ exports.listUsers = async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch users" })
   }
 }
-
-
-exports.updateUserRoles = async (req, res) => {
-  try {
-    const { id } = req.params
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid user id" })
-    }
-
-    const { roles } = req.body || {}
-    if (!Array.isArray(roles) || !roles.length) {
-      return res.status(400).json({ message: "Roles must be a non-empty array" })
-    }
-
-    const normalizedRoles = [...new Set(roles.map((role) => String(role).toLowerCase().trim()))]
-    const invalidRole = normalizedRoles.find((role) => !ALLOWED_ROLES.has(role))
-    if (invalidRole) {
-      return res.status(400).json({ message: `Invalid role: ${invalidRole}` })
-    }
-
-    const user = await User.findById(id)
-    if (!user) {
-      return res.status(404).json({ message: "User not found" })
-    }
-
-    if (String(user._id) === req.user.id && !normalizedRoles.includes("admin")) {
-      return res.status(400).json({ message: "You cannot remove your own admin access" })
-    }
-
-    user.roles = normalizedRoles
-    await user.save()
-
-    return res.json({
-      message: "User roles updated",
-      user: sanitizeUser(user),
-    })
-  } catch (error) {
-    console.error("Update user roles error", error)
-    return res.status(500).json({ message: "Failed to update user roles" })
-  }
-}
-
-
-
-

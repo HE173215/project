@@ -5,6 +5,12 @@ export const listUsers = async (params = {}) => {
   return response.data
 }
 
+export const updateUserRoles = async (id, roles) => {
+  const response = await api.put(`/auth/users/${id}/roles`, { roles })
+  return response.data
+}
+
 export default {
   listUsers,
+  updateUserRoles,
 }

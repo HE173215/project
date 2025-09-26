@@ -14,5 +14,6 @@ router.post("/reset-password", authController.resetPassword)
 router.put("/profile", authenticate, authController.updateProfile)
 router.get("/me", authenticate, authController.getProfile)
 router.get("/users", authenticate, requireRoles("admin", "manager"), authController.listUsers)
+router.put("/users/:id/roles", authenticate, requireRoles("admin"), authController.updateUserRoles)
 
 module.exports = router
