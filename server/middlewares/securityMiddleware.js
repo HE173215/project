@@ -11,7 +11,7 @@ exports.authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: false,
-  trustProxy: true // ✅ THÊM DÒNG NÀY
+  trustProxy: true
 })
 
 // Rate limiter cho API endpoints chung
@@ -24,7 +24,7 @@ exports.apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // ✅ THÊM DÒNG NÀY
+  trustProxy: true,
   skip: (req) => {
     if (process.env.NODE_ENV === 'development') {
       return true
@@ -43,7 +43,7 @@ exports.strictLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true // ✅ THÊM DÒNG NÀY
+  trustProxy: true
 })
 
 // CORS configuration
@@ -53,7 +53,7 @@ exports.corsOptions = {
       ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
       : [
           'http://localhost:3000',
-          'http://localhost:5173' // ✅ Thêm default cho dev
+          'http://localhost:5173'
         ]
     
     if (!origin) {
@@ -64,7 +64,6 @@ exports.corsOptions = {
       callback(null, true)
     } else {
       console.warn(`⚠️  CORS blocked origin: ${origin}`)
-      // ✅ SỬA: Không nên throw error, chỉ log
       callback(null, false)
     }
   },
@@ -78,14 +77,7 @@ exports.corsOptions = {
 
 // Helmet configuration
 exports.helmetOptions = {
-  contentSecurityPolicy: false, // ✅ Tắt CSP để tránh conflict
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }
-```
-
-**2. Thêm biến môi trường `ALLOWED_ORIGINS` trên Render:**
-
-Vào **Render Dashboard** → **Your Service** → **Environment** → Thêm:
-```
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,https://project-eight-psi-18.vercel.app,https://project-1rhkudpmu-he173215s-projects.vercel.app
