@@ -1,0 +1,27 @@
+{
+  "name": "project2-fullstack",
+  "version": "1.0.0",
+  "description": "Full Stack Authentication System with React and Express",
+  "scripts": {
+    "server": "cd server && npm run server",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-all": "npm run install-server && npm run install-client",
+    "build": "cd client && npm run build"
+  },
+  "keywords": [
+    "react",
+    "express",
+    "mongodb",
+    "authentication",
+    "jwt",
+    "otp"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

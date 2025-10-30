@@ -1,0 +1,273 @@
+/* Auth Container */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+}
+
+.auth-content {
+  width: 100%;
+  max-width: 1200px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 48px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Auth Header */
+.auth-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.auth-header .ant-typography {
+  margin-bottom: 8px;
+}
+
+.auth-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.auth-header a {
+  color: #667eea;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.auth-header a:hover {
+  color: #764ba2;
+}
+
+/* Auth Row */
+.auth-row {
+  margin-top: 32px;
+}
+
+/* Auth Divider */
+.auth-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.auth-divider .ant-divider-vertical {
+  height: 45%;
+  margin: 0;
+  border-left-color: #e0e0e0;
+}
+
+.auth-divider .ant-typography {
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+/* Form Styles */
+.ant-form-large .ant-form-item-label > label {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.ant-input-affix-wrapper-lg,
+.ant-input-lg {
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* Button Styles */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d91 100%);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+.ant-btn-lg {
+  height: 48px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ant-btn-default {
+  border-radius: 8px;
+  border-color: #d9d9d9;
+  transition: all 0.3s;
+}
+
+.ant-btn-default:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+/* Checkbox */
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.ant-checkbox:hover .ant-checkbox-inner {
+  border-color: #667eea;
+}
+
+/* Alert */
+.ant-alert-error {
+  border-radius: 8px;
+  border: 1px solid #ff4d4f;
+}
+
+.ant-alert-success {
+  border-radius: 8px;
+  border: 1px solid #52c41a;
+}
+
+/* Google Login Wrapper */
+.google-login-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-login-wrapper > div {
+  width: 100% !important;
+}
+
+.google-login-wrapper button {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 8px !important;
+}
+
+/* Links */
+a {
+  color: #667eea;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .auth-content {
+    padding: 32px 24px;
+  }
+
+  .auth-header h2 {
+    font-size: 28px;
+  }
+
+  .auth-divider {
+    display: none;
+  }
+
+  .auth-row {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-container {
+    padding: 20px 16px;
+  }
+
+  .auth-content {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+
+  .auth-header {
+    margin-bottom: 32px;
+  }
+
+  .auth-header h2 {
+    font-size: 24px;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Loading State */
+.ant-btn-loading {
+  opacity: 0.7;
+}
+
+/* Form Item Margin */
+.ant-form-item {
+  margin-bottom: 24px;
+}
+
+.ant-form-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Password Input */
+.ant-input-password {
+  border-radius: 8px;
+}
+
+.ant-input-password .ant-input {
+  border-radius: 8px;
+}
+
+/* Space */
+.ant-space-vertical {
+  width: 100%;
+}
+
+/* Disabled Button */
+.ant-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

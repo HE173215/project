@@ -1,0 +1,129 @@
+### Đăng ký user mới
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+
+  "username": "admin",
+  "email": "admin@example.com", 
+  "password": "123456",
+  "fullName": "Admin",
+  "role": "admin"
+}
+
+###
+
+### Xác thực OTP
+POST http://localhost:5000/api/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "otp": "123456"
+}
+
+###
+
+### Đăng nhập
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "password": "123456"
+}
+
+###
+
+### Lấy thông tin user hiện tại (cần token)
+GET http://localhost:5000/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+
+### Gửi lại OTP
+POST http://localhost:5000/api/auth/resend-otp
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com"
+}
+
+###
+
+### Quên mật khẩu
+POST http://localhost:5000/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com"
+}
+
+###
+
+### Reset mật khẩu
+POST http://localhost:5000/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "otp": "123456",
+  "newPassword": "newpassword123"
+}
+
+###
+
+### ========================================
+### GOOGLE OAUTH AUTHENTICATION
+### ========================================
+
+### Đăng nhập/Đăng ký với Google (sử dụng ID Token)
+POST http://localhost:5000/api/auth/google
+Content-Type: application/json
+
+{
+  "token": "paste_your_google_id_token_here"
+}
+
+###
+
+### Redirect đến Google OAuth (mở trong browser)
+### GET http://localhost:5000/api/auth/google/redirect
+
+###
+
+### Liên kết tài khoản Google (cần JWT token)
+POST http://localhost:5000/api/auth/google/link
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "token": "paste_your_google_id_token_here"
+}
+
+###
+
+### Hủy liên kết tài khoản Google (cần JWT token)
+DELETE http://localhost:5000/api/auth/google/unlink
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Đăng ký user mới
+POST http://localhost:5000/api/auth/register
+{
+  "username": "teacher_test",
+  "email": "teacher_test@example.com", 
+  "password": "123456",
+  "fullName": "Test Teacher",
+  "role": "lecturer"
+}
+
+### Với Postman/Thunder Client
+
+POST http://localhost:5000/api/enrollments/course-request
+Authorization: Bearer 68ecbe4e0c25a37b3452b731
+Content-Type: application/json
+
+{
+  "courseId": "6717d0f3c01a1a001234c111",
+  "useAI": true
+}
