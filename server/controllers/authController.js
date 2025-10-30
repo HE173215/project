@@ -14,7 +14,7 @@ const setTokenCookie = (res, token) => {
   const cookieOptions = {
     httpOnly: true, // Không thể truy cập từ JavaScript (XSS protection)
     secure: process.env.NODE_ENV === 'production', // Chỉ HTTPS trong production
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax cho development
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ✅ ĐỔI 'strict' → 'none'
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/'
   }
