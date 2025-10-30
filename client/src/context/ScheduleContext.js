@@ -15,7 +15,7 @@ export const ScheduleProvider = ({ children }) => {
   const getAllSchedules = async (params = {}) => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/schedules", { params });
+      const res = await axios.get("/schedules", { params }); // ✅ XÓA /api
       if (res.data?.success) {
         setSchedules(res.data.data || []);
         setTotal(res.data.total || 0);
@@ -37,7 +37,7 @@ export const ScheduleProvider = ({ children }) => {
   // =======================================================
   const createSchedule = async (data) => {
     try {
-      const res = await axios.post("/api/schedules", data);
+      const res = await axios.post("/schedules", data); // ✅ XÓA /api
       if (res.data?.success) {
         message.success("Tạo lịch học thành công");
         return res.data.data;
@@ -54,7 +54,7 @@ export const ScheduleProvider = ({ children }) => {
   // =======================================================
   const updateSchedule = async (id, data) => {
     try {
-      const res = await axios.put(`/api/schedules/${id}`, data);
+      const res = await axios.put(`/schedules/${id}`, data); // ✅ XÓA /api
       if (res.data?.success) {
         message.success("Cập nhật lịch học thành công");
         return res.data.data;
@@ -71,7 +71,7 @@ export const ScheduleProvider = ({ children }) => {
   // =======================================================
   const deleteSchedule = async (id) => {
     try {
-      const res = await axios.delete(`/api/schedules/${id}`);
+      const res = await axios.delete(`/schedules/${id}`); // ✅ XÓA /api
       if (res.data?.success) {
         message.success("Xóa lịch học thành công");
       }
@@ -88,7 +88,7 @@ export const ScheduleProvider = ({ children }) => {
   const getSchedulesByClass = async (classId) => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/schedules/class/${classId}`);
+      const res = await axios.get(`/schedules/class/${classId}`); // ✅ XÓA /api
       if (res.data?.success) {
         setSchedules(res.data.data || []);
         setTotal(res.data.count || 0);
