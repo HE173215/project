@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { List, Card, Button, Space, Tag, Empty, Popconfirm } from 'antd';
+import { List, Card, Button, Space, Empty, Popconfirm } from 'antd';
 import {
   BellOutlined,
   CheckOutlined,
@@ -66,13 +66,13 @@ const NotificationList = () => {
 
   const getTypeColor = (type) => {
     const colors = {
-      Info: 'blue',
-      Success: 'green',
-      Warning: 'orange',
-      Error: 'red',
-      Announcement: 'purple'
+      Info: '#1890ff',
+      Success: '#52c41a',
+      Warning: '#faad14',
+      Error: '#f5222d',
+      Announcement: '#722ed1'
     };
-    return colors[type] || 'default';
+    return colors[type] || '#d9d9d9';
   };
 
   return (
@@ -114,29 +114,35 @@ const NotificationList = () => {
           renderItem={(item) => (
             <List.Item
               style={{
-                backgroundColor: item.isRead ? 'transparent' : '#f0f5ff',
-                padding: '16px',
+                backgroundColor: item.isRead ? 'transparent' : '#f6f8fb',
+                padding: '14px 16px',
                 borderRadius: '8px',
-                marginBottom: '8px'
+                marginBottom: '12px',
+                borderLeft: `4px solid ${getTypeColor(item.type)}`,
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start'
               }}
               actions={[
                 !item.isRead && (
                   <Button
-                    type="link"
+                    type="text"
                     size="small"
                     icon={<CheckOutlined />}
                     onClick={() => handleMarkAsRead(item._id)}
+                    style={{ color: '#52c41a', padding: '4px 8px' }}
                   >
-                    Đánh dấu đã đọc
+                    Đã đọc
                   </Button>
                 ),
                 <Popconfirm
-                  title="Xóa thông báo này?"
+                  title="Xóa thông báo?"
                   onConfirm={() => handleDelete(item._id)}
                   okText="Xóa"
                   cancelText="Hủy"
                 >
-                  <Button type="link" size="small" danger icon={<DeleteOutlined />}>
+                  <Button type="text" size="small" danger icon={<DeleteOutlined />} style={{ padding: '4px 8px' }}>
                     Xóa
                   </Button>
                 </Popconfirm>
@@ -146,31 +152,46 @@ const NotificationList = () => {
                 avatar={
                   <div
                     style={{
-                      width: 40,
-                      height: 40,
+                      width: 48,
+                      height: 48,
+                      minWidth: 48,
                       borderRadius: '50%',
                       backgroundColor: getTypeColor(item.type),
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'white'
+                      color: 'white',
+                      fontSize: '20px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
                   >
                     <BellOutlined />
                   </div>
                 }
                 title={
-                  <Space>
-                    <span style={{ fontWeight: item.isRead ? 'normal' : 'bold' }}>
-                      {item.title}
-                    </span>
-                    <Tag color={getTypeColor(item.type)}>{item.type}</Tag>
-                  </Space>
+                  <span
+                    style={{
+                      fontWeight: item.isRead ? '400' : '600',
+                      fontSize: '16px',
+                      color: '#000'
+                    }}
+                  >
+                    {item.title}
+                  </span>
                 }
                 description={
-                  <div>
-                    <p style={{ margin: '8px 0' }}>{item.message}</p>
-                    <small style={{ color: '#999' }}>
+                  <div style={{ marginTop: '4px' }}>
+                    <p
+                      style={{
+                        margin: '4px 0',
+                        fontSize: '14px',
+                        color: '#666',
+                        lineHeight: '1.5'
+                      }}
+                    >
+                      {item.message}
+                    </p>
+                    <small style={{ color: '#999', fontSize: '12px' }}>
                       {moment(item.createdAt).fromNow()}
                     </small>
                   </div>

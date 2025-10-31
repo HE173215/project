@@ -1,10 +1,11 @@
-import React from 'react';
-import { Layout, Dropdown, Avatar, Space } from 'antd';
-import { UserOutlined, LogoutOutlined, DashboardOutlined, DownOutlined, TeamOutlined } from '@ant-design/icons';
+import { Layout, Dropdown, Avatar, Space, Badge, Typography } from 'antd';
+import { UserOutlined, LogoutOutlined, DashboardOutlined, SettingOutlined, TeamOutlined, ReadOutlined, BellOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import '../../styles/Navbar.css';
 
 const { Header } = Layout;
+const { Text } = Typography;
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -15,11 +16,26 @@ const Navbar = () => {
     navigate('/auth/login');
   };
 
+  const getRoleDisplay = () => {
+    const roleMap = {
+      admin: "Quản trị viên",
+      manager: "Quản lý",
+      lecturer: "Giảng viên",
+      student: "Học viên",
+    };
+    return roleMap[user?.role] || user?.role;
+  };
+
   const userMenuItems = [
     {
       key: 'profile',
       icon: <UserOutlined />,
       label: <Link to="/profile">Thông tin cá nhân</Link>,
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: <Link to="/settings">Cài đặt</Link>,
     },
     ...(user?.role === 'admin' ? [{
       key: 'admin',
@@ -34,45 +50,62 @@ const Navbar = () => {
       icon: <LogoutOutlined />,
       label: 'Đăng xuất',
       onClick: handleLogout,
+      danger: true,
     },
   ];
 
   return (
-    <Header style={{ 
-      background: '#fff', 
-      padding: '0 50px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    }}>
-      <Link to="/dashboard" style={{ 
-        fontSize: '20px',
-        fontWeight: 'bold',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        textDecoration: 'none'
-      }}>
-        🚀 Project
+    <Header className="custom-navbar">
+      {/* Logo/Brand Section */}
+      <Link to="/dashboard" className="navbar-brand">
+        <div className="brand-icon">
+          <ReadOutlined />
+        </div>
+        <div className="brand-text">
+          <div className="brand-title">EduManage</div>
+          <div className="brand-subtitle">Learning System</div>
+        </div>
       </Link>
 
-      <Space size="large">
-        <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
-          <Space>
-            <DashboardOutlined />
-            Dashboard
-          </Space>
+      {/* Right Section */}
+      <div className="navbar-right">
+        {/* Dashboard Link */}
+        <Link to="/dashboard" className="navbar-link">
+          <DashboardOutlined className="link-icon" />
+          <span>Dashboard</span>
         </Link>
 
-        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-          <Space style={{ cursor: 'pointer' }}>
-            <Avatar icon={<UserOutlined />} />
-            <span>{user?.username || 'User'}</span>
-            <DownOutlined />
-          </Space>
+        {/* Notifications */}
+        <div className="navbar-notification">
+          <Badge count={0} offset={[-5, 5]}>
+            <BellOutlined className="notification-icon" />
+          </Badge>
+        </div>
+
+        {/* User Dropdown */}
+        <Dropdown
+          menu={{ items: userMenuItems }}
+          placement="bottomRight"
+          trigger={['click']}
+        >
+          <div className="navbar-user">
+            <Avatar
+              src={user?.avatar}
+              icon={<UserOutlined />}
+              size={40}
+              className="user-avatar"
+            />
+            <div className="user-info">
+              <Text strong className="user-name">
+                {user?.fullName || user?.username}
+              </Text>
+              <Text className="user-role">
+                {getRoleDisplay()}
+              </Text>
+            </div>
+          </div>
         </Dropdown>
-      </Space>
+      </div>
     </Header>
   );
 };

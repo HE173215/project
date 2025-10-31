@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Layout, Card, Form, Input, Button, Avatar, Typography, Space } from 'antd';
-import { UserOutlined, PhoneOutlined, EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Avatar, Typography, Space, Divider, Row, Col, Tag } from 'antd';
+import { UserOutlined, PhoneOutlined, EditOutlined, SaveOutlined, CloseOutlined, CheckCircleOutlined, ExclamationCircleOutlined, CalendarOutlined, LoginOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/layout/Navbar';
 import RoleTag from '../../components/common/RoleTag';
 
-const { Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const Profile = () => {
   const { user, updateProfile } = useAuth();
@@ -32,34 +31,87 @@ const Profile = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Navbar />
-      <Content style={{ padding: '50px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <Card 
-            title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Title level={4} style={{ margin: 0 }}>Thông tin cá nhân</Title>
+    <>
+      <div style={{ padding: '24px 16px', backgroundColor: '#f5f7fa', minHeight: 'calc(100vh - 64px)' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          {/* Profile Header Card */}
+          <Card
+            style={{
+              borderRadius: '8px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+              marginBottom: '20px',
+              overflow: 'hidden'
+            }}
+          >
+            <Row justify="space-between" align="top" gutter={24} style={{ marginBottom: '24px' }}>
+              {/* Left: Avatar & Basic Info */}
+              <Col xs={24} sm={24} md={16}>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <Avatar
+                    size={88}
+                    icon={<UserOutlined />}
+                    src={user?.avatar}
+                    style={{
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                      backgroundColor: '#1890ff',
+                      flexShrink: 0
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div>
+                      <Title level={3} style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '700' }}>
+                        {user?.fullName || 'Người dùng'}
+                      </Title>
+                      <Text type="secondary" style={{ fontSize: '13px', display: 'block', marginBottom: '12px' }}>
+                        @{user?.username}
+                      </Text>
+                    </div>
+                    <Space size={8} wrap>
+                      <RoleTag role={user?.role || 'student'} />
+                      {user?.isVerified ? (
+                        <Tag
+                          icon={<CheckCircleOutlined />}
+                          color="success"
+                          style={{ fontSize: '12px' }}
+                        >
+                          Đã xác thực
+                        </Tag>
+                      ) : (
+                        <Tag
+                          icon={<ExclamationCircleOutlined />}
+                          color="warning"
+                          style={{ fontSize: '12px' }}
+                        >
+                          Chưa xác thực
+                        </Tag>
+                      )}
+                    </Space>
+                  </div>
+                </div>
+              </Col>
+
+              {/* Right: Edit Button */}
+              <Col xs={24} sm={24} md={8} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
                 {!editing && (
-                  <Button 
+                  <Button
+                    type="primary"
                     icon={<EditOutlined />}
                     onClick={() => setEditing(true)}
+                    size="large"
+                    style={{ width: '100%', maxWidth: '120px' }}
                   >
                     Chỉnh sửa
                   </Button>
                 )}
-              </div>
-            }
-          >
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <Avatar size={80} icon={<UserOutlined />} src={user?.avatar} />
-            </div>
+              </Col>
+            </Row>
 
+            <Divider style={{ margin: '16px 0' }} />
+
+            {/* Form Section */}
             <Form
               form={form}
-              layout="horizontal"
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 18 }}
+              layout="vertical"
               onFinish={onFinish}
               initialValues={{
                 fullName: user?.fullName || '',
@@ -67,61 +119,84 @@ const Profile = () => {
                 avatar: user?.avatar || ''
               }}
             >
-              <Form.Item label="Username">
-                <strong>{user?.username}</strong>
-                <br />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Không thể thay đổi
-                </Typography.Text>
+              <Row gutter={24}>
+                {/* Left Column */}
+                <Col xs={24} sm={12}>
+                  {/* Username */}
+                  <Form.Item label={<Text strong style={{ fontSize: '14px' }}>Username</Text>}>
+                    <Input
+                      value={user?.username}
+                      disabled
+                      size="large"
+                      style={{ borderRadius: '6px' }}
+                    />
+                  </Form.Item>
+
+                  {/* Email */}
+                  <Form.Item label={<Text strong style={{ fontSize: '14px' }}>Email</Text>}>
+                    <Input
+                      value={user?.email}
+                      disabled
+                      size="large"
+                      style={{ borderRadius: '6px' }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* Right Column */}
+                <Col xs={24} sm={12}>
+                  {/* Full Name */}
+                  <Form.Item label={<Text strong style={{ fontSize: '14px' }}>Họ và tên</Text>} name="fullName">
+                    <Input
+                      prefix={<UserOutlined />}
+                      placeholder="Nhập họ và tên"
+                      size="large"
+                      disabled={!editing}
+                      style={{ borderRadius: '6px' }}
+                    />
+                  </Form.Item>
+
+                  {/* Phone */}
+                  <Form.Item label={<Text strong style={{ fontSize: '14px' }}>Số điện thoại</Text>} name="phone">
+                    <Input
+                      prefix={<PhoneOutlined />}
+                      placeholder="Nhập số điện thoại"
+                      size="large"
+                      disabled={!editing}
+                      style={{ borderRadius: '6px' }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              {/* Avatar URL */}
+              <Form.Item label={<Text strong style={{ fontSize: '14px' }}>Avatar URL</Text>} name="avatar">
+                <Input
+                  placeholder="Nhập URL avatar"
+                  size="large"
+                  disabled={!editing}
+                  style={{ borderRadius: '6px' }}
+                />
               </Form.Item>
 
-              <Form.Item label="Email">
-                <strong>{user?.email}</strong>
-                <br />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Không thể thay đổi
-                </Typography.Text>
-              </Form.Item>
-
-              <Form.Item label="Họ và tên" name="fullName">
-                {editing ? (
-                  <Input prefix={<UserOutlined />} placeholder="Nhập họ và tên" />
-                ) : (
-                  <strong>{user?.fullName || 'Chưa cập nhật'}</strong>
-                )}
-              </Form.Item>
-
-              <Form.Item label="Số điện thoại" name="phone">
-                {editing ? (
-                  <Input prefix={<PhoneOutlined />} placeholder="Nhập số điện thoại" />
-                ) : (
-                  <strong>{user?.phone || 'Chưa cập nhật'}</strong>
-                )}
-              </Form.Item>
-
-              <Form.Item label="Avatar URL" name="avatar">
-                {editing ? (
-                  <Input placeholder="Nhập URL avatar" />
-                ) : (
-                  <strong>{user?.avatar || 'Chưa cập nhật'}</strong>
-                )}
-              </Form.Item>
-
+              {/* Action Buttons */}
               {editing && (
-                <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
+                <Form.Item style={{ marginTop: '24px', marginBottom: 0 }}>
                   <Space>
-                    <Button 
+                    <Button
                       icon={<CloseOutlined />}
                       onClick={handleCancel}
                       disabled={loading}
+                      size="large"
                     >
                       Hủy
                     </Button>
-                    <Button 
+                    <Button
                       type="primary"
                       icon={<SaveOutlined />}
                       htmlType="submit"
                       loading={loading}
+                      size="large"
                     >
                       Lưu thay đổi
                     </Button>
@@ -131,38 +206,67 @@ const Profile = () => {
             </Form>
           </Card>
 
-          <Card title="Thông tin bổ sung" style={{ marginTop: 24 }}>
-            <Form.Item label="Vai trò" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
-              <RoleTag role={user?.role || 'student'} style={{ fontSize: 14, padding: '4px 12px' }} />
-            </Form.Item>
+          {/* Additional Info Card */}
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
+                Thông tin bổ sung
+              </Title>
+            }
+            style={{
+              borderRadius: '8px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+            }}
+          >
+            <Row gutter={24}>
+              {/* Created Date */}
+              <Col xs={24} sm={12}>
+                <div style={{ padding: '12px 0' }}>
+                  <Text strong style={{ fontSize: '13px', color: '#666', display: 'block', marginBottom: '6px' }}>
+                    Ngày tạo
+                  </Text>
+                  <Space>
+                    <CalendarOutlined style={{ color: '#1890ff', fontSize: '14px' }} />
+                    <Text style={{ fontSize: '14px', color: '#000' }}>
+                      {user?.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString('vi-VN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })
+                        : 'Chưa có thông tin'
+                      }
+                    </Text>
+                  </Space>
+                </div>
+              </Col>
 
-            <Form.Item label="Trạng thái" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
-              <Typography.Text strong>
-                {user?.isVerified ? '✅ Đã xác thực' : '⚠️ Chưa xác thực'}
-              </Typography.Text>
-            </Form.Item>
-
-            <Form.Item label="Ngày tạo" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
-              <Typography.Text>
-                {user?.createdAt 
-                  ? new Date(user.createdAt).toLocaleString('vi-VN')
-                  : 'Chưa có thông tin'
-                }
-              </Typography.Text>
-            </Form.Item>
-
-            <Form.Item label="Đăng nhập lần cuối" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
-              <Typography.Text>
-                {user?.lastLogin 
-                  ? new Date(user.lastLogin).toLocaleString('vi-VN')
-                  : 'Chưa có thông tin'
-                }
-              </Typography.Text>
-            </Form.Item>
+              {/* Last Login */}
+              <Col xs={24} sm={12}>
+                <div style={{ padding: '12px 0' }}>
+                  <Text strong style={{ fontSize: '13px', color: '#666', display: 'block', marginBottom: '6px' }}>
+                    Đăng nhập lần cuối
+                  </Text>
+                  <Space>
+                    <LoginOutlined style={{ color: '#1890ff', fontSize: '14px' }} />
+                    <Text style={{ fontSize: '14px', color: '#000' }}>
+                      {user?.lastLogin
+                        ? new Date(user.lastLogin).toLocaleDateString('vi-VN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })
+                        : 'Chưa có thông tin'
+                      }
+                    </Text>
+                  </Space>
+                </div>
+              </Col>
+            </Row>
           </Card>
         </div>
-      </Content>
-    </Layout>
+      </div>
+    </>
   );
 };
 

@@ -4,6 +4,8 @@ import { ConfigProvider, App as AntApp } from 'antd';
 import { GoogleOAuthProvider } from './components/auth';
 import AppProviders from './context/AppProviders';
 import AppRoutes from './routes/AppRoutes';
+import './styles/PageTheme.css';
+import './styles/PageComponents.css';
 
 /**
  * Main App Component
@@ -21,9 +23,13 @@ function App() {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#1890ff',
+          colorPrimary: '#667eea',
+          colorSuccess: '#52c41a',
+          colorWarning: '#faad14',
+          colorError: '#ff4d4f',
+          colorInfo: '#667eea',
           borderRadius: 8,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         },
       }}
     >

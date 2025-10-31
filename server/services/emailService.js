@@ -266,7 +266,6 @@ const sendEmail = async (to, subject, htmlContent) => {
 
     const info = await transporter.sendMail(mailOptions)
 
-    console.log('✅ Email đã được gửi:', info.messageId)
     return {
       success: true,
       messageId: info.messageId

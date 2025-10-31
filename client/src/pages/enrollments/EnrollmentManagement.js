@@ -8,12 +8,12 @@ import {
   Select,
   Popconfirm,
   Modal,
-  Input,
   Typography,
   message,
   Badge,
   Divider,
-  Tooltip
+  Tooltip,
+  Spin
 } from 'antd';
 import {
   CheckOutlined,
@@ -24,11 +24,13 @@ import {
 } from '@ant-design/icons';
 import moment from 'moment';
 import { useEnrollment } from '../../context/EnrollmentContext';
+import { useAuth } from '../../context/AuthContext';
 
 const { Option } = Select;
 const { Title, Text } = Typography;
 
 const EnrollmentManagement = () => {
+  const { api } = useAuth();
   const {
     enrollments,
     loading,
@@ -46,9 +48,12 @@ const EnrollmentManagement = () => {
     open: false,
     enrollmentId: null,
     student: '',
-    currentClass: ''
+    currentClass: '',
+    courseId: null
   });
   const [newClassId, setNewClassId] = useState('');
+  const [availableClasses, setAvailableClasses] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
 
   // Fetch data
   const loadEnrollments = useCallback(async () => {
@@ -89,29 +94,62 @@ const EnrollmentManagement = () => {
     loadEnrollments();
   };
 
+  // Load available classes for reassignment
+  const loadAvailableClasses = async (courseId) => {
+    if (!courseId) {
+      setAvailableClasses([]);
+      return;
+    }
+
+    setLoadingClasses(true);
+    try {
+      const response = await api.get('/classes', {
+        params: {
+          course: courseId,
+          status: 'Active'
+        }
+      });
+      setAvailableClasses(response.data.data || []);
+    } catch (error) {
+      console.error('Load classes error:', error);
+      message.error('Không thể tải danh sách lớp');
+      setAvailableClasses([]);
+    } finally {
+      setLoadingClasses(false);
+    }
+  };
+
   const handleOpenReassign = (record) => {
     setNewClassId('');
+    setAvailableClasses([]);
     setReassignModal({
       open: true,
       enrollmentId: record._id,
       student: record.user?.fullName || record.user?.username || 'Không rõ',
-      currentClass: record.class?.title || 'Chưa có lớp'
+      currentClass: record.class?.title || 'Chưa có lớp',
+      courseId: record.course?._id || null
     });
+
+    // Load classes for this course
+    if (record.course?._id) {
+      loadAvailableClasses(record.course._id);
+    }
   };
 
   const handleReassignSubmit = async () => {
-    if (!newClassId.trim()) {
-      message.warning('Vui lòng nhập Class ID mới');
+    if (!newClassId) {
+      message.warning('Vui lòng chọn lớp học mới');
       return;
     }
-    await reassignEnrollment(reassignModal.enrollmentId, newClassId.trim());
+    await reassignEnrollment(reassignModal.enrollmentId, newClassId);
     handleCloseReassign();
     loadEnrollments();
   };
 
   const handleCloseReassign = () => {
-    setReassignModal({ open: false, enrollmentId: null, student: '', currentClass: '' });
+    setReassignModal({ open: false, enrollmentId: null, student: '', currentClass: '', courseId: null });
     setNewClassId('');
+    setAvailableClasses([]);
   };
 
   // Table columns
@@ -184,28 +222,41 @@ const EnrollmentManagement = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      width: 250,
+      width: 280,
       align: 'center',
+      fixed: 'right',
       render: (_, record) => (
-        <Space>
+        <Space size="small" style={{ display: 'flex', justifyContent: 'center' }}>
           {record.status === 'PendingApproval' && (
             <>
               <Popconfirm
                 title="Phê duyệt đăng ký này?"
                 onConfirm={() => handleApprove(record._id)}
+                okText="Xác nhận"
+                cancelText="Hủy"
               >
                 <Button
                   type="primary"
                   icon={<CheckOutlined />}
                   size="small"
-                  style={{ borderRadius: 6 }}
+                  style={{ minWidth: 85 }}
                 >
                   Duyệt
                 </Button>
               </Popconfirm>
 
-              <Popconfirm title="Từ chối đăng ký này?" onConfirm={() => handleReject(record._id)}>
-                <Button danger icon={<CloseOutlined />} size="small" style={{ borderRadius: 6 }}>
+              <Popconfirm
+                title="Từ chối đăng ký này?"
+                onConfirm={() => handleReject(record._id)}
+                okText="Xác nhận"
+                cancelText="Hủy"
+              >
+                <Button
+                  danger
+                  icon={<CloseOutlined />}
+                  size="small"
+                  style={{ minWidth: 85 }}
+                >
                   Từ chối
                 </Button>
               </Popconfirm>
@@ -213,7 +264,7 @@ const EnrollmentManagement = () => {
           )}
 
           {record.status === 'Approved' && (
-            <Space>
+            <>
               {!record.class && (
                 <Tooltip title="AI tự động xếp lớp phù hợp">
                   <Button
@@ -221,6 +272,7 @@ const EnrollmentManagement = () => {
                     type="dashed"
                     size="small"
                     onClick={() => handleAutoAssign(record._id)}
+                    style={{ minWidth: 110 }}
                   >
                     Xếp lớp AI
                   </Button>
@@ -231,22 +283,47 @@ const EnrollmentManagement = () => {
                   icon={<SwapOutlined />}
                   size="small"
                   onClick={() => handleOpenReassign(record)}
+                  style={{ minWidth: 85 }}
                 >
                   Đổi lớp
                 </Button>
               </Tooltip>
-            </Space>
+            </>
           )}
 
           {record.status === 'DropRequested' && (
-            <Space>
-              <Popconfirm title="Phê duyệt yêu cầu hủy lớp này?" onConfirm={() => handleApproveDrop(record._id)}>
-                <Button type="primary" size="small" icon={<CheckOutlined />}>Phê duyệt hủy</Button>
+            <>
+              <Popconfirm
+                title="Phê duyệt yêu cầu hủy lớp này?"
+                onConfirm={() => handleApproveDrop(record._id)}
+                okText="Xác nhận"
+                cancelText="Hủy"
+              >
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<CheckOutlined />}
+                  style={{ minWidth: 120 }}
+                >
+                  Duyệt hủy
+                </Button>
               </Popconfirm>
-              <Popconfirm title="Từ chối yêu cầu hủy lớp này?" onConfirm={() => handleRejectDrop(record._id)}>
-                <Button size="small" danger icon={<CloseOutlined />}>Từ chối hủy</Button>
+              <Popconfirm
+                title="Từ chối yêu cầu hủy lớp này?"
+                onConfirm={() => handleRejectDrop(record._id)}
+                okText="Xác nhận"
+                cancelText="Hủy"
+              >
+                <Button
+                  size="small"
+                  danger
+                  icon={<CloseOutlined />}
+                  style={{ minWidth: 110 }}
+                >
+                  Từ chối hủy
+                </Button>
               </Popconfirm>
-            </Space>
+            </>
           )}
         </Space>
       )
@@ -284,12 +361,12 @@ const EnrollmentManagement = () => {
             </Text>
           </div>
 
-          <Space>
+          <Space size="middle">
             <Select
               placeholder="Lọc theo trạng thái"
               value={statusFilter}
               onChange={setStatusFilter}
-              style={{ width: 180 }}
+              style={{ minWidth: 180 }}
               allowClear
             >
               <Option value="">Tất cả</Option>
@@ -304,8 +381,7 @@ const EnrollmentManagement = () => {
             <Button
               icon={<ReloadOutlined />}
               onClick={loadEnrollments}
-              shape="round"
-              style={{ backgroundColor: '#f0f2f5', border: 'none' }}
+              style={{ minWidth: 100 }}
             >
               Làm mới
             </Button>
@@ -329,25 +405,69 @@ const EnrollmentManagement = () => {
       {/* Modal đổi lớp */}
       <Modal
         open={reassignModal.open}
-        title="Cập nhật lớp học cho sinh viên"
-        okText="Lưu thay đổi"
+        title="Đổi lớp học cho sinh viên"
+        okText="Xác nhận đổi lớp"
         cancelText="Hủy"
         onOk={handleReassignSubmit}
         onCancel={handleCloseReassign}
         confirmLoading={loading}
+        width={600}
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Text>
-            <strong>Sinh viên:</strong> {reassignModal.student}
-          </Text>
-          <Text>
-            <strong>Lớp hiện tại:</strong> {reassignModal.currentClass}
-          </Text>
-          <Input
-            placeholder="Nhập Class ID mới"
-            value={newClassId}
-            onChange={(e) => setNewClassId(e.target.value)}
-          />
+        <Space direction="vertical" style={{ width: '100%' }} size="large">
+          <div>
+            <Text strong style={{ fontSize: 14, color: '#666' }}>Thông tin sinh viên</Text>
+            <div style={{ marginTop: 8, padding: 12, background: '#f5f5f5', borderRadius: 8 }}>
+              <Text><strong>Sinh viên:</strong> {reassignModal.student}</Text>
+            </div>
+          </div>
+
+          <div>
+            <Text strong style={{ fontSize: 14, color: '#666' }}>Lớp hiện tại</Text>
+            <div style={{ marginTop: 8, padding: 12, background: '#fff3e0', borderRadius: 8, border: '1px solid #ffb74d' }}>
+              <Text><strong>Lớp:</strong> {reassignModal.currentClass}</Text>
+            </div>
+          </div>
+
+          <div>
+            <Text strong style={{ fontSize: 14, color: '#666', display: 'block', marginBottom: 8 }}>
+              Chọn lớp mới <Text type="danger">*</Text>
+            </Text>
+            <Spin spinning={loadingClasses}>
+              <Select
+                placeholder="Chọn lớp học để chuyển"
+                value={newClassId}
+                onChange={setNewClassId}
+                style={{ width: '100%' }}
+                size="large"
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.children?.toLowerCase() ?? '').includes(input.toLowerCase())
+                }
+                notFoundContent={
+                  loadingClasses ? <Spin size="small" /> :
+                  availableClasses.length === 0 ? "Không có lớp khả dụng" : null
+                }
+              >
+                {availableClasses.map((cls) => (
+                  <Option key={cls._id} value={cls._id}>
+                    <Space direction="vertical" size={0}>
+                      <Text strong>{cls.title}</Text>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Sĩ số: {cls.currentStudents || 0}/{cls.maxStudents} |
+                        Bắt đầu: {moment(cls.startDate).format('DD/MM/YYYY')}
+                      </Text>
+                    </Space>
+                  </Option>
+                ))}
+              </Select>
+            </Spin>
+            {availableClasses.length > 0 && (
+              <Text type="secondary" style={{ fontSize: 12, marginTop: 8, display: 'block' }}>
+                Tìm thấy {availableClasses.length} lớp khả dụng
+              </Text>
+            )}
+          </div>
         </Space>
       </Modal>
     </Card>

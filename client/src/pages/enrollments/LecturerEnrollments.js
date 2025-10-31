@@ -44,13 +44,27 @@ const LecturerEnrollments = () => {
     getAllClasses();
   }, [getAllClasses]);
 
-  // Gán giá trị teachingDays ban đầu
+  // Gán giá trị teachingDays ban đầu (chỉ lần đầu)
   useEffect(() => {
-    const init = {};
-    classes.forEach((cls) => {
-      init[cls._id] = cls.teachingDays || [];
-    });
-    setSelectedDays(init);
+    if (classes.length > 0) {
+      setSelectedDays((prevDays) => {
+        const init = {};
+        let hasChanges = false;
+
+        classes.forEach((cls) => {
+          // Chỉ cập nhật nếu class này chưa có trong selectedDays
+          if (prevDays[cls._id] === undefined) {
+            init[cls._id] = cls.teachingDays || [];
+            hasChanges = true;
+          } else {
+            init[cls._id] = prevDays[cls._id];
+          }
+        });
+
+        // Chỉ update state nếu có thay đổi
+        return hasChanges ? { ...prevDays, ...init } : prevDays;
+      });
+    }
   }, [classes]);
 
   // Cập nhật lựa chọn ngày
@@ -62,8 +76,18 @@ const LecturerEnrollments = () => {
   const handleSave = useCallback(
     async (classId) => {
       try {
-        await updateTeachingDaysForClass(classId, selectedDays[classId] || []);
-      } catch {}
+        const result = await updateTeachingDaysForClass(classId, selectedDays[classId] || []);
+        if (result) {
+          // Cập nhật selectedDays với giá trị mới từ server
+          setSelectedDays((prev) => ({
+            ...prev,
+            [classId]: result.teachingDays || []
+          }));
+          message.success('Lưu thay đổi thành công!');
+        }
+      } catch (error) {
+        message.error('Lỗi khi lưu thay đổi');
+      }
     },
     [selectedDays, updateTeachingDaysForClass]
   );
@@ -76,16 +100,20 @@ const LecturerEnrollments = () => {
         dataIndex: "title",
         key: "title",
         width: 250,
-        render: (text, record) => (
-          <Space direction="vertical" size={0}>
-            <Text strong style={{ fontSize: 15 }}>
-              {text}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Mã lớp: {record?._id ? record._id.slice(-6) : "---"}
-            </Text>
-          </Space>
-        ),
+        render: (text, record) => {
+          const classId = record?._id;
+          const displayId = typeof classId === "string" ? classId.slice(-6) : "---";
+          return (
+            <Space direction="vertical" size={0}>
+              <Text strong style={{ fontSize: 15 }}>
+                {text}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Mã lớp: {displayId}
+              </Text>
+            </Space>
+          );
+        },
       },
       {
         title: "Khóa học",
@@ -157,7 +185,7 @@ const LecturerEnrollments = () => {
         ),
       },
     ],
-    [loading, selectedDays, handleSave]
+    [selectedDays, handleSave, loading]
   );
 
   return (
@@ -206,7 +234,7 @@ const LecturerEnrollments = () => {
       ) : (
         <Table
           columns={columns}
-          dataSource={classes}
+          dataSource={classes.map(cls => ({ ...cls }))} // Tạo reference mới mỗi lần render để ensure data freshness
           rowKey="_id"
           loading={loading}
           pagination={{

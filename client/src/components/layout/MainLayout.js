@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Layout, Menu, Avatar, Dropdown, Badge } from "antd";
+import { useEffect, useState } from "react";
+import { Layout, Menu, Avatar, Dropdown, Badge, Typography } from "antd";
 import {
   DashboardOutlined,
   BookOutlined,
@@ -15,12 +15,15 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   BarChartOutlined,
+  ReadOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
+import "../../styles/MainLayout.css";
 
 const { Header, Sider, Content } = Layout;
+const { Text } = Typography;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -57,7 +60,7 @@ const MainLayout = () => {
         key: "/classes",
         icon: <TeamOutlined />,
         label: "Lớp học",
-        roles: ["admin", "manager"], // ✅ chỉ hiển thị khi role là admin hoặc manager
+        roles: ["admin", "manager"],
       },
       {
         key: "/teachers",
@@ -165,103 +168,119 @@ const MainLayout = () => {
     },
   ];
 
+  // Get role display name
+  const getRoleDisplay = () => {
+    const roleMap = {
+      admin: "Quản trị viên",
+      manager: "Quản lý",
+      lecturer: "Giảng viên",
+      student: "Học viên",
+    };
+    return roleMap[user?.role] || user?.role;
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
-        style={{
-          overflow: "auto",
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
-        }}
+        className="main-sider"
+        width={260}
+        collapsedWidth={80}
       >
-        <div
-          style={{
-            height: 64,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: collapsed ? 16 : 20,
-            fontWeight: "bold",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-          }}
-        >
-          {collapsed ? "LMS" : "Learning MS"}
+        {/* Logo Section */}
+        <div className={`logo-section ${collapsed ? "collapsed" : ""}`}>
+          <div className="logo-icon">
+            <ReadOutlined />
+          </div>
+          {!collapsed && (
+            <div className="logo-text">
+              <div className="logo-title">EduManage</div>
+              <div className="logo-subtitle">Learning Management</div>
+            </div>
+          )}
         </div>
+
+        {/* Menu */}
         <Menu
-          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={getMenuItems()}
           onClick={handleMenuClick}
-          style={{ borderRight: 0 }}
+          className="main-menu"
         />
+
+        {/* User Info in Sidebar (when expanded) */}
+        {!collapsed && (
+          <div className="sidebar-user-info">
+            <Avatar
+              size={48}
+              src={user?.avatar}
+              icon={<UserOutlined />}
+              className="sidebar-avatar"
+            />
+            <div className="sidebar-user-details">
+              <Text strong className="sidebar-username">
+                {user?.fullName || user?.username}
+              </Text>
+              <Text className="sidebar-role">
+                {getRoleDisplay()}
+              </Text>
+            </div>
+          </div>
+        )}
       </Sider>
 
-      <Layout
-        style={{ marginLeft: collapsed ? 80 : 200, transition: "all 0.2s" }}
-      >
-        <Header
-          style={{
-            padding: "0 24px",
-            background: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {React.createElement(
-              collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-              {
-                className: "trigger",
-                onClick: () => setCollapsed(!collapsed),
-                style: { fontSize: 18, cursor: "pointer" },
-              }
-            )}
+      <Layout className="site-layout">
+        {/* Header */}
+        <Header className="main-header">
+          <div className="header-left">
+            <div
+              className="trigger-button"
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            </div>
+            <div className="header-breadcrumb">
+              <Text className="current-page">
+                {getMenuItems().find(item => item.key === location.pathname)?.label || "Dashboard"}
+              </Text>
+            </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Badge count={unreadCount} offset={[-5, 5]}>
-              <BellOutlined
-                style={{ fontSize: 20, cursor: "pointer" }}
-                onClick={() => navigate("/notifications")}
-              />
-            </Badge>
+          <div className="header-right">
+            {/* Notifications */}
+            <div className="header-notification" onClick={() => navigate("/notifications")}>
+              <Badge count={unreadCount} offset={[-3, 3]}>
+                <div className="notification-icon">
+                  <BellOutlined />
+                </div>
+              </Badge>
+            </div>
 
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  cursor: "pointer",
-                }}
-              >
-                <Avatar src={user?.avatar} icon={<UserOutlined />} />
-                <span>{user?.fullName || user?.username}</span>
+            {/* User Dropdown */}
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
+              <div className="header-user">
+                <Avatar src={user?.avatar} icon={<UserOutlined />} size={40} />
+                <div className="header-user-info">
+                  <Text strong className="header-username">
+                    {user?.fullName || user?.username}
+                  </Text>
+                  <Text className="header-role">
+                    {getRoleDisplay()}
+                  </Text>
+                </div>
               </div>
             </Dropdown>
           </div>
         </Header>
 
-        <Content
-          style={{
-            margin: "24px",
-            padding: 24,
-            background: "#fff",
-            minHeight: 280,
-            borderRadius: 8,
-          }}
-        >
-          <Outlet />
+        {/* Content */}
+        <Content className="main-content">
+          <div className="content-wrapper">
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

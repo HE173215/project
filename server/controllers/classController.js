@@ -142,6 +142,9 @@ exports.deleteClass = async (req, res) => {
 // ======================================
 exports.updateTeachingDaysForClass = async (req, res) => {
   try {
+    if (!req.params.id)
+      return res.status(400).json({ success: false, message: "ID lớp học không hợp lệ" });
+
     const classDoc = await Class.findById(req.params.id)
       .populate({
         path: "teacher",
@@ -188,10 +191,18 @@ exports.updateTeachingDaysForClass = async (req, res) => {
       console.log(`✅ [AI] Hoàn tất xếp lịch cho lớp ${classDoc.title}`);
     });
 
+    // Re-fetch full class data để trả về client
+    const updatedClass = await Class.findById(classDoc._id)
+      .populate({
+        path: "teacher",
+        populate: { path: "user", select: "fullName email" },
+      })
+      .populate("course");
+
     res.status(200).json({
       success: true,
       message: "Đã cập nhật ngày dạy. AI sẽ lần lượt xếp lịch cho lớp này...",
-      data: { classId: classDoc._id, teachingDays: sanitized },
+      data: updatedClass,
     });
   } catch (err) {
     console.error("❌ Lỗi updateTeachingDaysForClass:", err);

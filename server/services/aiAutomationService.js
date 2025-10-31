@@ -43,7 +43,7 @@ const daysUntil = (date) => {
 // ==================================================
 // 🔹 AI sinh lịch học tự động cho lớp
 // ==================================================
-exports.autoGenerateScheduleForClass = async (classId) => {
+const autoGenerateScheduleForClass = async (classId) => {
   try {
     const classDoc = await Class.findById(classId)
       .populate({
@@ -137,7 +137,18 @@ exports.autoGenerateScheduleForClass = async (classId) => {
       return null;
     };
 
-    // ===== Vòng lặp chính: tạo buổi học =====
+    // ===== Xóa lịch cũ nếu có =====
+    const existingSchedules = await Schedule.find({ class: classDoc._id });
+    let deletedCount = 0;
+
+    if (existingSchedules.length > 0) {
+      // Xóa tất cả lịch cũ
+      await Schedule.deleteMany({ class: classDoc._id });
+      deletedCount = existingSchedules.length;
+      console.log(`🗑️ Đã xóa ${deletedCount} lịch cũ của lớp ${classDoc.title}`);
+    }
+
+    // ===== Vòng lặp chính: tạo buổi học (chỉ nếu chưa có lịch) =====
     for (
       let d = moment(startDate);
       d.isSameOrBefore(endDate) && created < totalSessions;
@@ -196,10 +207,15 @@ exports.autoGenerateScheduleForClass = async (classId) => {
 
     const completionRate = Math.round((created / totalSessions) * 100);
 
+    // Tạo thông báo
+    const notificationMessage = deletedCount > 0
+      ? `Hệ thống đã xóa ${deletedCount} lịch cũ và tạo mới ${created}/${totalSessions} buổi học cho lớp "${classDoc.title}" (${completionRate}% hoàn thành, tối đa 2 buổi/ngày).`
+      : `Hệ thống đã tạo ${created}/${totalSessions} buổi học cho lớp "${classDoc.title}" (${completionRate}% hoàn thành, tối đa 2 buổi/ngày).`;
+
     await Notification.create({
       user: classDoc.teacher.user,
       title: "Tự động xếp lịch giảng dạy",
-      message: `Hệ thống đã tạo ${created}/${totalSessions} buổi học cho lớp "${classDoc.title}" (${completionRate}% hoàn thành, tối đa 2 buổi/ngày).`,
+      message: notificationMessage,
       type: "Info",
       relatedModel: "Class",
       relatedId: classDoc._id,
@@ -207,8 +223,8 @@ exports.autoGenerateScheduleForClass = async (classId) => {
 
     return {
       success: true,
-      message: `AI đã tạo ${created}/${totalSessions} buổi học (${completionRate}% hoàn thành, tối đa 2 buổi/ngày).`,
-      data: { classId, sessions: createdSessions, completionRate },
+      message: `AI đã ${deletedCount > 0 ? `xóa ${deletedCount} lịch cũ và t` : 't'}ạo ${created}/${totalSessions} buổi học (${completionRate}% hoàn thành, tối đa 2 buổi/ngày).`,
+      data: { classId, sessions: createdSessions, completionRate, deletedCount },
     };
   } catch (err) {
     console.error("❌ AI Auto Schedule Error:", err);
@@ -280,6 +296,7 @@ const shouldUseAIResult = (data) => {
 };
 
 module.exports = {
+  autoGenerateScheduleForClass,
   requestAssignment,
   applyAssignment,
   shouldUseAIResult
