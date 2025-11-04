@@ -849,11 +849,12 @@ const LecturerAssessment = () => {
                                 ? fileName
                                 : `${fileName}.pdf`; // fallback to pdf if no extension
 
-                              // For Cloudinary URLs, force download with proper content-disposition
+                              // For Cloudinary URLs, force download with proper filename
                               let downloadUrl = fileUrl;
                               if (fileUrl && fileUrl.includes('cloudinary.com')) {
-                                // Use fl_attachment flag to force download with filename
-                                downloadUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
+                                // Add fl_attachment and filename to Cloudinary URL
+                                // This tells Cloudinary to return Content-Disposition: attachment with filename
+                                downloadUrl = fileUrl.replace('/upload/', `/upload/fl_attachment:${downloadName}/`);
                               }
 
                               a.href = downloadUrl;
