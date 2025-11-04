@@ -139,10 +139,7 @@ const LecturerAssessment = () => {
       if (assignmentFileList.length > 0) {
         try {
           attachmentUrls = await fileService.uploadFiles(
-            assignmentFileList.map(f => f.originFileObj),
-            (percent, current, total) => {
-              console.log(`Uploading file ${current}/${total}: ${percent}%`);
-            }
+            assignmentFileList.map(f => f.originFileObj)
           );
         } catch (uploadError) {
           message.error('Lỗi upload file: ' + uploadError.message);
@@ -843,16 +840,33 @@ const LecturerAssessment = () => {
                             size="small"
                             icon={<DownloadOutlined />}
                             onClick={() => {
-                              const a = document.createElement('a');
                               const downloadName = fileName.includes('.')
                                 ? fileName
                                 : `${fileName}.pdf`;
 
-                              a.href = fileUrl;
-                              a.download = downloadName;
-                              document.body.appendChild(a);
-                              a.click();
-                              document.body.removeChild(a);
+                              // For Cloudinary URLs with fl_attachment, use fetch to download with proper filename
+                              if (fileUrl && fileUrl.includes('cloudinary.com')) {
+                                fetch(fileUrl)
+                                  .then(res => res.blob())
+                                  .then(blob => {
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = downloadName;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    window.URL.revokeObjectURL(url);
+                                  });
+                              } else {
+                                // For non-Cloudinary URLs
+                                const a = document.createElement('a');
+                                a.href = fileUrl;
+                                a.download = downloadName;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                              }
                             }}
                           >
                             Tải

@@ -436,7 +436,6 @@ exports.submitAssessment = async (req, res) => {
           })
         }
       }
-      console.log('✅ Attachments to save:', attachments)
       assessment.attachments = attachments
     }
 
