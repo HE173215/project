@@ -81,6 +81,7 @@ const scheduleRoutes = require("./routes/scheduleRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const assessmentRoutes = require("./routes/assessmentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const fileRoutes = require("./routes/fileRoutes");
 
 const routes = [
   ["/api/auth", authRoutes],
@@ -94,6 +95,7 @@ const routes = [
   ["/api/enrollments", enrollmentRoutes],
   ["/api/assessments", assessmentRoutes],
   ["/api/notifications", notificationRoutes],
+  ["/api/files", fileRoutes],
 ];
 
 routes.forEach(([path, handler]) => app.use(path, handler));

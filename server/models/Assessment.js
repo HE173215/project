@@ -63,11 +63,43 @@ const assessmentSchema = new mongoose.Schema(
       default: 'Pending'
     },
     
-    // File đính kèm (URLs)
+    // File đính kèm (Cloudinary URLs và metadata)
     attachments: [{
-      type: String,
-      trim: true
-    }]
+      originalName: {
+        type: String,
+        trim: true
+      },
+      mimeType: {
+        type: String,
+        trim: true
+      },
+      size: {
+        type: Number
+      },
+      url: {
+        type: String,
+        trim: true
+      },
+      cloudinaryId: {
+        type: String,
+        trim: true
+      },
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+
+    // Deadline cho submission
+    deadline: {
+      type: Date
+    },
+
+    // Để theo dõi xem bài có bị muộn không
+    isLate: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true
@@ -96,9 +128,16 @@ assessmentSchema.methods.submit = function() {
   if (this.status !== 'Pending') {
     throw new Error('Assessment đã được submit')
   }
-  
+
   this.status = 'Submitted'
   this.submissionDate = new Date()
+
+  // Kiểm tra xem bài có bị muộn không
+  if (this.deadline && this.submissionDate > this.deadline) {
+    this.status = 'Late'
+    this.isLate = true
+  }
+
   return this.save()
 }
 
@@ -125,20 +164,72 @@ assessmentSchema.statics.calculateEnrollmentAverage = async function(enrollmentI
     enrollment: enrollmentId,
     status: 'Graded'
   })
-  
+
   if (assessments.length === 0) {
     return null
   }
-  
+
   let totalWeightedScore = 0
   let totalWeight = 0
-  
+
   assessments.forEach(assessment => {
     totalWeightedScore += assessment.score * assessment.weight
     totalWeight += assessment.weight
   })
-  
+
   return totalWeight > 0 ? totalWeightedScore / totalWeight : 0
+}
+
+// Static method để tự động đánh dấu các bài muộn
+assessmentSchema.statics.markLateSubmissions = async function() {
+  try {
+    const now = new Date()
+
+    const result = await this.updateMany(
+      {
+        deadline: { $lt: now },
+        status: 'Pending',
+        isLate: false
+      },
+      {
+        $set: {
+          status: 'Late',
+          isLate: true
+        }
+      }
+    )
+
+    console.log(`✅ Marked ${result.modifiedCount} assessments as late`)
+    return result
+  } catch (error) {
+    console.error('❌ Error marking late submissions:', error)
+    throw error
+  }
+}
+
+// Static method để lấy các bài chưa được chấm điểm cho lớp
+assessmentSchema.statics.getUngraded = async function(classId, type = null) {
+  const query = {
+    status: { $in: ['Submitted', 'Late'] }
+  }
+
+  if (type) {
+    query.type = type
+  }
+
+  // Nếu truyền classId, tìm enrollments trong lớp đó
+  if (classId) {
+    const Enrollment = mongoose.model('Enrollment')
+    const enrollments = await Enrollment.find({ class: classId }).select('_id')
+    query.enrollment = { $in: enrollments.map(e => e._id) }
+  }
+
+  return this.find(query)
+    .populate({
+      path: 'enrollment',
+      populate: 'user'
+    })
+    .sort({ submissionDate: 1 })
 }
 
 const Assessment = mongoose.model('Assessment', assessmentSchema)

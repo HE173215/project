@@ -38,6 +38,9 @@ import LecturerEnrollments from '../pages/enrollments/LecturerEnrollments';
 // Notifications
 import NotificationList from '../pages/notifications/NotificationList';
 
+// Assessments
+import { LecturerAssessment, StudentAssessment } from '../pages/assessment';
+
 // User Management
 import UserManagement from '../pages/admin/UserManagement';
 
@@ -103,6 +106,8 @@ const PublicRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
+  const { user } = useAuth();
+
   return (
     <Routes>
       {/* Public Routes */}
@@ -210,6 +215,34 @@ const AppRoutes = () => {
 
         {/* Notifications - All roles */}
         <Route path="notifications" element={<NotificationList />} />
+
+        {/* Assessments */}
+        <Route
+          path="assessments/lecturer"
+          element={
+            <ProtectedRoute roles={['lecturer']}>
+              <LecturerAssessment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="assessments/student"
+          element={
+            <ProtectedRoute roles={['student']}>
+              <StudentAssessment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="assessments"
+          element={
+            user?.role === 'lecturer' ? (
+              <LecturerAssessment />
+            ) : (
+              <StudentAssessment />
+            )
+          }
+        />
 
         {/* Performance Report - Manager only */}
         <Route
