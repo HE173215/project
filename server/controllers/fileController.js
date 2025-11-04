@@ -48,15 +48,27 @@ exports.uploadFiles = async (req, res) => {
           streamifier.createReadStream(file.buffer).pipe(stream)
         })
 
+        // Extract file extension from original filename
+        const fileExtension = file.originalname.includes('.')
+          ? file.originalname.substring(file.originalname.lastIndexOf('.'))
+          : ''
+
+        // Add extension to URL for proper download
+        // Cloudinary URL format: https://res.cloudinary.com/.../upload/v1234/assessments/timestamp_name
+        // We'll add extension like: https://res.cloudinary.com/.../upload/v1234/assessments/timestamp_name.docx
+        const urlWithExtension = fileExtension
+          ? result.secure_url + fileExtension
+          : result.secure_url
+
         const uploadedFile = {
           originalName: file.originalname,
           mimeType: file.mimetype,
           size: file.size,
-          url: result.secure_url,
+          url: urlWithExtension,
           cloudinaryId: result.public_id,
           uploadedAt: new Date()
         }
-        console.log(`✅ File uploaded: ${file.originalname} -> originalName: ${uploadedFile.originalName}`)
+        console.log(`✅ File uploaded: ${file.originalname} -> URL: ${urlWithExtension}`)
         uploadedFiles.push(uploadedFile)
       } catch (error) {
         errors.push({

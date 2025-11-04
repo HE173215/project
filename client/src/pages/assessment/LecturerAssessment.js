@@ -844,20 +844,11 @@ const LecturerAssessment = () => {
                             icon={<DownloadOutlined />}
                             onClick={() => {
                               const a = document.createElement('a');
-                              // Ensure fileName has extension
                               const downloadName = fileName.includes('.')
                                 ? fileName
-                                : `${fileName}.pdf`; // fallback to pdf if no extension
+                                : `${fileName}.pdf`;
 
-                              // For Cloudinary URLs, force download with proper filename
-                              let downloadUrl = fileUrl;
-                              if (fileUrl && fileUrl.includes('cloudinary.com')) {
-                                // Add fl_attachment and filename to Cloudinary URL
-                                // This tells Cloudinary to return Content-Disposition: attachment with filename
-                                downloadUrl = fileUrl.replace('/upload/', `/upload/fl_attachment:${downloadName}/`);
-                              }
-
-                              a.href = downloadUrl;
+                              a.href = fileUrl;
                               a.download = downloadName;
                               document.body.appendChild(a);
                               a.click();
