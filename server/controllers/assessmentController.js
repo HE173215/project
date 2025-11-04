@@ -118,7 +118,7 @@ exports.createAssessment = async (req, res) => {
 // @access  Private (Teacher, Admin, Manager)
 exports.createAssessmentForClass = async (req, res) => {
   try {
-    const { title, classId, type, weight, deadline, attachments } = req.body
+    const { title, classId, deadline, attachments } = req.body
 
     // Validate required fields
     if (!title || !classId) {
@@ -128,13 +128,11 @@ exports.createAssessmentForClass = async (req, res) => {
       })
     }
 
-    // Validate input
-    const validationErrors = validateAssessmentInput(title, weight, type)
-    if (validationErrors.length > 0) {
+    // Validate title
+    if (!title || title.trim().length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Dữ liệu không hợp lệ',
-        errors: validationErrors
+        message: 'Tiêu đề bài tập không được để trống'
       })
     }
 
@@ -176,10 +174,11 @@ exports.createAssessmentForClass = async (req, res) => {
     }
 
     const assessmentData = {
-      type: type || 'Assignment',
-      weight: weight !== undefined ? weight : 10
+      type: 'Assignment',
+      weight: 10
     }
 
+    // Validate and set deadline
     if (deadline) {
       const deadlineDate = new Date(deadline)
       if (deadlineDate <= new Date()) {
@@ -189,6 +188,11 @@ exports.createAssessmentForClass = async (req, res) => {
         })
       }
       assessmentData.deadline = deadlineDate
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Deadline là bắt buộc'
+      })
     }
 
     // Validate and add attachments if provided

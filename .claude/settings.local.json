@@ -9,7 +9,10 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nFix file download extension issue with Cloudinary fl_attachment parameter\n\n- Update StudentAssessment.js download logic to use fl_attachment flag for Cloudinary URLs\n- Update LecturerAssessment.js with same fix for teacher reviewing student submissions\n- Ensure fileName includes proper extension when downloading from Cloudinary\n- Use document.body.appendChild/removeChild for reliable download handling\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit -m \"$(cat <<''EOF''\nFix Cloudinary download with proper filename in fl_attachment parameter\n\n- Update StudentAssessment.js to include filename in fl_attachment:filename format\n- Update LecturerAssessment.js with same fix\n- Cloudinary will now set Content-Disposition header with proper filename\n\nExample: /upload/fl_attachment:NPL.M.A009.docx/ will make file download as NPL.M.A009.docx\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dir /s d:OJTCodeproject2clientsrcpages 2)",
+      "Bash(nul)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

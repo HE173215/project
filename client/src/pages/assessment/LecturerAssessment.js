@@ -583,29 +583,10 @@ const LecturerAssessment = () => {
           </Form.Item>
 
           <Form.Item
-            name="type"
-            label="Loại bài tập"
-            rules={[{ required: true, message: 'Vui lòng chọn loại' }]}
+            name="deadline"
+            label="Deadline"
+            rules={[{ required: true, message: 'Vui lòng chọn deadline' }]}
           >
-            <Select placeholder="Chọn loại bài tập">
-              <Select.Option value="Assignment">Assignment</Select.Option>
-              <Select.Option value="Quiz">Quiz</Select.Option>
-              <Select.Option value="Project">Project</Select.Option>
-              <Select.Option value="Midterm">Midterm</Select.Option>
-              <Select.Option value="Final">Final</Select.Option>
-              <Select.Option value="Presentation">Presentation</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="weight"
-            label="Trọng số (%)"
-            rules={[{ required: true, message: 'Vui lòng nhập trọng số' }]}
-          >
-            <InputNumber min={0} max={100} placeholder="10" />
-          </Form.Item>
-
-          <Form.Item name="deadline" label="Deadline">
             <DatePicker showTime format="DD/MM/YYYY HH:mm" />
           </Form.Item>
 
