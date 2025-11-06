@@ -48,14 +48,6 @@ const assessmentSchema = new mongoose.Schema(
       default: 'Assignment'
     },
     
-    // Trọng số (%)
-    weight: {
-      type: Number,
-      min: [0, 'Trọng số không thể âm'],
-      max: [100, 'Trọng số không thể vượt quá 100'],
-      default: 10
-    },
-    
     // Trạng thái
     status: {
       type: String,

@@ -148,10 +148,10 @@ const LecturerAssessment = () => {
       }
 
       const payload = {
-        ...values,
-        classId: selectedClass,
+        title: values.title,
+        classId: values.classId,
         deadline: values.deadline ? values.deadline.toISOString() : undefined,
-        attachments: attachmentUrls, // Thêm file URLs
+        attachments: attachmentUrls,
       };
 
       const response = await api.post(
@@ -165,7 +165,7 @@ const LecturerAssessment = () => {
       createForm.resetFields();
       setAssignmentFileList([]);
       setCreateModalVisible(false);
-      loadAssessments(selectedClass);
+      loadAssessments(values.classId);
     } catch (error) {
       console.error('❌ Lỗi tạo bài tập:', error);
       message.error(error.response?.data?.message || 'Lỗi tạo bài tập');
@@ -574,6 +574,20 @@ const LecturerAssessment = () => {
           onFinish={handleCreateAssessmentForClass}
           layout="vertical"
         >
+          <Form.Item
+            name="classId"
+            label="Chọn lớp"
+            rules={[{ required: true, message: 'Vui lòng chọn lớp' }]}
+          >
+            <Select placeholder="Chọn lớp học">
+              {classes.map((cls) => (
+                <Select.Option key={cls._id} value={cls._id}>
+                  {cls.title}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
           <Form.Item
             name="title"
             label="Tiêu đề bài tập"

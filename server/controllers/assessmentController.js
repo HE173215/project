@@ -174,8 +174,7 @@ exports.createAssessmentForClass = async (req, res) => {
     }
 
     const assessmentData = {
-      type: 'Assignment',
-      weight: 10
+      type: 'Assignment'
     }
 
     // Validate and set deadline
@@ -724,7 +723,7 @@ exports.deleteAssessment = async (req, res) => {
 // @access  Private (Student)
 exports.getMyAssessments = async (req, res) => {
   try {
-    const { status, type, classId, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 } = req.query
+    const { status, type, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 } = req.query
 
     // Tìm tất cả enrollments của user
     const enrollments = await Enrollment.find({ user: req.user._id }).select('_id')
@@ -765,11 +764,6 @@ exports.getMyAssessments = async (req, res) => {
       } else {
         query.type = { $in: typeValues }
       }
-    }
-
-    // Filter by class
-    if (classId) {
-      query['enrollment.class'] = classId
     }
 
     // Validate sort

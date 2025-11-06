@@ -58,7 +58,6 @@ const StudentAssessment = () => {
   // Filter & Sort
   const [filters, setFilters] = useState({
     status: 'all',
-    type: 'all',
     sortBy: 'deadline',
   });
 
@@ -81,7 +80,6 @@ const StudentAssessment = () => {
       // Load all assessments with filters
       const params = {};
       if (filters.status !== 'all') params.status = filters.status;
-      if (filters.type !== 'all') params.type = filters.type;
       params.sortBy = filters.sortBy;
       params.sortOrder = 'asc';
       params.page = 1;
@@ -444,24 +442,6 @@ const StudentAssessment = () => {
                         <Select.Option value="Submitted">Đã nộp</Select.Option>
                         <Select.Option value="Graded">Đã chấm</Select.Option>
                         <Select.Option value="Late">Muộn</Select.Option>
-                      </Select>
-                    </Col>
-                    <Col xs={24} sm={12} md={8}>
-                      <Select
-                        placeholder="Lọc theo loại"
-                        value={filters.type}
-                        onChange={(value) =>
-                          setFilters({ ...filters, type: value })
-                        }
-                        style={{ width: '100%' }}
-                      >
-                        <Select.Option value="all">Tất cả</Select.Option>
-                        <Select.Option value="Assignment">Assignment</Select.Option>
-                        <Select.Option value="Quiz">Quiz</Select.Option>
-                        <Select.Option value="Project">Project</Select.Option>
-                        <Select.Option value="Midterm">Midterm</Select.Option>
-                        <Select.Option value="Final">Final</Select.Option>
-                        <Select.Option value="Presentation">Presentation</Select.Option>
                       </Select>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
