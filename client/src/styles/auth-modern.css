@@ -1,0 +1,150 @@
+/* Modern Auth Pages Styles */
+
+/* Form Floating Custom Styles */
+.form-floating > .form-control.border-0.border-bottom {
+  padding-top: 1.625rem;
+  padding-bottom: 0.625rem;
+}
+
+.form-floating > .form-control.border-0.border-bottom:focus {
+  border-bottom-color: #212529 !important;
+  box-shadow: none;
+}
+
+.form-floating > label {
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  color: #6c757d;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Divider Styles */
+.bg-dark[style*="opacity"] {
+  background-color: #212529 !important;
+}
+
+/* Google Login Button Wrapper */
+.google-login-wrapper {
+  width: 100%;
+}
+
+.google-login-wrapper > div {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+}
+
+.google-login-wrapper button {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Custom Button Styles */
+.btn.rounded-0 {
+  border-radius: 0 !important;
+}
+
+.btn-outline-dark.rounded-0:hover {
+  background-color: #212529;
+  border-color: #212529;
+  color: #fff;
+}
+
+/* Section Spacing */
+section.py-3.py-md-5.py-xl-8 {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Display Heading */
+.display-5 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Link Styles */
+.link-secondary {
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.link-secondary:hover {
+  color: #212529;
+}
+
+/* Form Check */
+.form-check-input:checked {
+  background-color: #212529;
+  border-color: #212529;
+}
+
+.form-check-label {
+  cursor: pointer;
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 0.25rem;
+  border: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+  .display-5 {
+    font-size: 2rem;
+  }
+  
+  section.py-3.py-md-5.py-xl-8 {
+    min-height: auto;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* Loading Button Override */
+.btn-dark.rounded-0 {
+  background-color: #212529;
+  border-color: #212529;
+  transition: all 0.3s ease;
+}
+
+.btn-dark.rounded-0:hover {
+  background-color: #000;
+  border-color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-dark.rounded-0:active {
+  transform: translateY(0);
+}
+
+/* Disabled Button */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+section.py-3.py-md-5.py-xl-8 > .container > .row {
+  animation: fadeIn 0.6s ease-out;
+}

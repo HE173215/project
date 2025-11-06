@@ -1,0 +1,553 @@
+/* ============================================
+   PAGE THEME - EDUCATIONAL GRADIENT PURPLE
+   Global styles for all pages in the application
+   ============================================ */
+
+/* ============================================
+   CARD STYLING
+   ============================================ */
+
+/* Override default Ant Design Card */
+.ant-card {
+  border-radius: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(102, 126, 234, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-card:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+.ant-card-head {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%) !important;
+  border-bottom: 2px solid transparent !important;
+  border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+  border-image-slice: 1 !important;
+  border-radius: 16px 16px 0 0 !important;
+  padding: 16px 24px !important;
+}
+
+.ant-card-head-title {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ant-card-body {
+  padding: 24px !important;
+}
+
+/* ============================================
+   STATISTIC CARDS
+   ============================================ */
+
+.ant-statistic {
+  text-align: center;
+}
+
+.ant-statistic-title {
+  font-size: 14px !important;
+  color: #666 !important;
+  margin-bottom: 8px !important;
+  font-weight: 500 !important;
+}
+
+.ant-statistic-content {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+}
+
+.ant-statistic .anticon {
+  margin-right: 8px;
+  font-size: 24px;
+}
+
+/* Custom statistic card hover effects */
+.ant-card:has(.ant-statistic) {
+  cursor: pointer;
+}
+
+.ant-card:has(.ant-statistic):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #7c8ff0 0%, #8a5cb3 100%) !important;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+.ant-btn {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):hover {
+  border-color: #667eea !important;
+  color: #667eea !important;
+}
+
+.ant-btn-dangerous {
+  transition: all 0.3s ease !important;
+}
+
+.ant-btn-dangerous:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3) !important;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.ant-table {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.ant-table-thead > tr > th {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%) !important;
+  color: #333 !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid #667eea !important;
+  font-size: 14px !important;
+  padding: 16px !important;
+}
+
+.ant-table-tbody > tr {
+  transition: all 0.3s ease !important;
+}
+
+.ant-table-tbody > tr:hover {
+  background: rgba(102, 126, 234, 0.05) !important;
+  transform: scale(1.001);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.ant-table-tbody > tr > td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Striped rows */
+.ant-table-tbody > tr:nth-child(even) {
+  background: rgba(102, 126, 234, 0.02);
+}
+
+/* ============================================
+   TAGS
+   ============================================ */
+
+.ant-tag {
+  border-radius: 6px !important;
+  padding: 4px 12px !important;
+  font-weight: 500 !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom tag colors to match theme */
+.ant-tag-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+.ant-tag-success {
+  background: linear-gradient(135deg, #52c41a 0%, #3f9e13 100%) !important;
+  color: white !important;
+}
+
+.ant-tag-error {
+  background: linear-gradient(135deg, #ff4d4f 0%, #d93b3d 100%) !important;
+  color: white !important;
+}
+
+.ant-tag-warning {
+  background: linear-gradient(135deg, #faad14 0%, #d98e0f 100%) !important;
+  color: white !important;
+}
+
+.ant-tag-purple {
+  background: linear-gradient(135deg, #722ed1 0%, #531dab 100%) !important;
+  color: white !important;
+}
+
+/* ============================================
+   FORMS & INPUTS
+   ============================================ */
+
+.ant-form-item-label > label {
+  font-weight: 500 !important;
+  color: #333 !important;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-picker,
+.ant-select-selector {
+  border-radius: 8px !important;
+  border-color: #e0e0e0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-picker:hover,
+.ant-select:hover .ant-select-selector {
+  border-color: #667eea !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-number:focus,
+.ant-input-number-focused,
+.ant-picker-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+
+.ant-modal-content {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.ant-modal-header {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%) !important;
+  border-bottom: 2px solid transparent !important;
+  border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+  border-image-slice: 1 !important;
+  padding: 20px 24px !important;
+}
+
+.ant-modal-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ant-modal-body {
+  padding: 24px !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid rgba(102, 126, 234, 0.1) !important;
+  padding: 16px 24px !important;
+}
+
+/* ============================================
+   PAGINATION
+   ============================================ */
+
+.ant-pagination-item {
+  border-radius: 6px !important;
+  border-color: #e0e0e0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-pagination-item:hover {
+  border-color: #667eea !important;
+}
+
+.ant-pagination-item-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-color: transparent !important;
+}
+
+.ant-pagination-item-active a {
+  color: white !important;
+}
+
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link {
+  border-color: #667eea !important;
+  color: #667eea !important;
+}
+
+/* ============================================
+   BADGE
+   ============================================ */
+
+.ant-badge-count {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* ============================================
+   PROGRESS
+   ============================================ */
+
+.ant-progress-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+
+.ant-divider {
+  border-color: rgba(102, 126, 234, 0.2) !important;
+}
+
+.ant-divider-horizontal.ant-divider-with-text {
+  color: #667eea !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================
+   DROPDOWN MENU
+   ============================================ */
+
+.ant-dropdown-menu {
+  border-radius: 12px !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
+  padding: 8px !important;
+}
+
+.ant-dropdown-menu-item {
+  border-radius: 8px !important;
+  margin: 2px 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+.ant-dropdown-menu-item-selected {
+  background: rgba(102, 126, 234, 0.15) !important;
+  color: #667eea !important;
+}
+
+/* ============================================
+   ALERT
+   ============================================ */
+
+.ant-alert-success {
+  background: rgba(82, 196, 26, 0.1) !important;
+  border: 1px solid rgba(82, 196, 26, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+.ant-alert-info {
+  background: rgba(102, 126, 234, 0.1) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+.ant-alert-warning {
+  background: rgba(250, 173, 20, 0.1) !important;
+  border: 1px solid rgba(250, 173, 20, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+.ant-alert-error {
+  background: rgba(255, 77, 79, 0.1) !important;
+  border: 1px solid rgba(255, 77, 79, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+/* ============================================
+   DESCRIPTIONS
+   ============================================ */
+
+.ant-descriptions-bordered .ant-descriptions-item-label {
+  background: rgba(102, 126, 234, 0.05) !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+}
+
+.ant-descriptions-bordered .ant-descriptions-view {
+  border-radius: 12px !important;
+  overflow: hidden;
+  border-color: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ============================================
+   POPCONFIRM
+   ============================================ */
+
+.ant-popover-inner {
+  border-radius: 12px !important;
+}
+
+.ant-popover-message-title {
+  font-weight: 500 !important;
+}
+
+/* ============================================
+   SPACE
+   ============================================ */
+
+.ant-space-item .ant-btn {
+  min-width: 80px;
+}
+
+/* ============================================
+   PAGE HEADERS & TITLES
+   ============================================ */
+
+h1, h2, h3, h4 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700 !important;
+}
+
+/* ============================================
+   CUSTOM PAGE UTILITIES
+   ============================================ */
+
+/* Page container */
+.page-container {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Page header */
+.page-header {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.page-title {
+  font-size: 28px !important;
+  margin: 0 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #999;
+  margin-top: 8px;
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Filter bar */
+.filter-bar {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Action bar */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .ant-card-head-title {
+    font-size: 16px !important;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 12px 8px !important;
+    font-size: 13px !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+  }
+
+  .page-title {
+    font-size: 22px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ant-card,
+.ant-modal,
+.ant-table {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Smooth transitions for all interactive elements */
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-card,
+.ant-table-row,
+.ant-tag,
+.ant-pagination-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
